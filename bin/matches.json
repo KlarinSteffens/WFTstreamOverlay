@@ -1,0 +1,179 @@
+{
+    "matches": [
+        {
+            "title":"Gruppe A",
+            "home":"Bratans aus Favelas",
+            "away":"Anabolika Atzen"
+        },
+        {
+            "title":"Gruppe B",
+            "home":"Die cringen Grinchs",
+            "away":"Material Girls"
+        },
+        {
+            "title":"Gruppe C",
+            "home":"Baumann GmbH",
+            "away":"Elternteam"
+        },
+        {
+            "title":"Gruppe D",
+            "home":"Schnewittchen und die 7 Swage",
+            "away":"Sieger Tag 1"
+        },
+        {
+            "title":"Gruppe A",
+            "home":"Bratans aus Favelas",
+            "away":"500g Bresaola Schinken"
+        },
+        {
+            "title":"Gruppe B",
+            "home":"Die cringen Grinchs",
+            "away":"The Police"
+        },
+        {
+            "title":"Gruppe C",
+            "home":"Baumann GmbH",
+            "away":"Nun plus Ultra"
+        },
+        {
+            "title":"Gruppe D",
+            "home":"Schnewittchen und die 7 Swage",
+            "away":"Lehrerteam"
+        },
+        {
+            "title":"Gruppe A",
+            "home":"Anabolika Atzen",
+            "away":"500g Bresaola Schinken"
+        },
+        {
+            "title":"Gruppe B",
+            "home":"Material Girls",
+            "away":"The Police"
+        },
+        {
+            "title":"Gruppe C",
+            "home":"Elternteam",
+            "away":"Nun plus Ultra"
+        },
+        {
+            "title":"Gruppe D",
+            "home":"Sieger Tag 1",
+            "away":"Lehrerteam"
+        },
+        {
+            "title":"Gruppe D",
+            "home":"Schnewittchen und die 7 Swage",
+            "away":"Schneewittchens Gartenzwerge"
+        },
+        {
+            "title":"Gruppe A",
+            "home":"Bratans aus Favelas",
+            "away":"All-Stars"
+        },
+        {
+            "title":"Gruppe C",
+            "home":"Nun plus ultra",
+            "away":"AbsolvENTEN"
+        },
+        {
+            "title":"Gruppe D",
+            "home":"Sieger Tag 1",
+            "away":"Korruptionsaffäre FC"
+        },
+        {
+            "title":"Gruppe D",
+            "home":"Lehrerteam",
+            "away":"Schneewittchens Gartenzwerge"
+        },
+        {
+            "title":"Gruppe B",
+            "home":"Die cringen Grinchs",
+            "away":"Zanins Vektorschützen"
+        },
+        {
+            "title":"Gruppe A",
+            "home":"500g Bresaola Schinken",
+            "away":"All-Stars"
+        },
+        {
+            "title":"Gruppe D",
+            "home":"Schnewittchen und die 7 Swage",
+            "away":"Korruptionsaffäre FC"
+        },
+        {
+            "title":"Gruppe D",
+            "home":"Sieger Tag 1",
+            "away":"Schneewittchens Gartenzwerge"
+        },
+        {
+            "title":"Gruppe C",
+            "home":"Baumann GmbH",
+            "away":"AbsolvENTEN"
+        },
+        {
+            "title":"Gruppe B",
+            "home":"The Police",
+            "away":"Zanins Vektorschützen"
+        },
+        {
+            "title":"Gruppe D",
+            "home":"Lehrerteam",
+            "away":"Korruptionsaffäre FC"
+        },
+        {
+            "title":"Gruppe A",
+            "home":"Anabolika Atzen",
+            "away":"All-Stars"
+        },
+        {
+            "title":"Gruppe C",
+            "home":"Elternteam",
+            "away":"AbsolvENTEN"
+        },
+        {
+            "title":"Gruppe B",
+            "home":"Material Girls",
+            "away":"Zanins Vektorschützen"
+        },
+        {
+            "title":"Gruppe D",
+            "home":"Schneewittchens Gartenzwerge",
+            "away":"Korruptionsaffäre FC"
+        },
+        {
+            "title":"VF1",
+            "home":"1. Gruppe A",
+            "away":"2. Gruppe C"
+        },
+        {
+            "title":"VF2",
+            "home":"1. Gruppe B",
+            "away":"2. Gruppe D"
+        },
+        {
+            "title":"VF3",
+            "home":"2. Gruppe A",
+            "away":"1. Gruppe C"
+        },
+        {
+            "title":"VF4",
+            "home":"2. Gruppe B",
+            "away":"1. Gruppe D"
+        },
+        {
+            "title":"HF1",
+            "home":"Sieger VF1",
+            "away":"Sieger VF2"
+        },
+        {
+            "title":"HF2",
+            "home":"Sieger VF3",
+            "away":"Sieger VF4"
+        },
+        {
+            "title":"Finale",
+            "home":"Sieger HF1",
+            "away":"Sieger HF2"
+        }
+    ]
+}
