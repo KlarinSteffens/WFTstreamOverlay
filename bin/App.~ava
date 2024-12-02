@@ -10,14 +10,20 @@ import java.security.MessageDigest;
 import java.util.Base64;
 import java.util.Timer;
 import java.util.TimerTask;
-
+import java.io.IOException;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 import java.util.ArrayList;
+import java.io.File;
 import org.json.JSONTokener;
-import java.awt.event.*;
-import java.io.*;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 public class App extends WebSocketClient {
 
@@ -62,11 +68,8 @@ public class App extends WebSocketClient {
 
     @Override
     public void onMessage(String message) {
+        System.out.println("Received message: " + message);
         JSONObject json = new JSONObject(message);
-
-        if (json.getInt("op") != 5) {
-            System.out.println("Received message: " + message);
-        }
 
         if (json.has("op") && json.getInt("op") == 0) {
             JSONObject authData = json.getJSONObject("d").getJSONObject("authentication");
@@ -253,23 +256,6 @@ public class App extends WebSocketClient {
         send(setCurrentScene.toString());
         System.out.println(setCurrentScene.toString());
     }
-
-    public void activateGoalSong(String scoreGainedTeam){
-        requestID++;
-        JSONObject activateGoalSong = new JSONObject();
-        activateGoalSong.put("op", 6);
-        JSONObject activateGoalSongContent = new JSONObject();
-        activateGoalSongContent.put("requestType", "TriggerMediaInputAction");
-        activateGoalSongContent.put("requestId", requestID);
-        JSONObject activateGoalSongData = new JSONObject();
-        activateGoalSongData.put("inputName", scoreGainedTeam);
-        activateGoalSongData.put("mediaAction", "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_RESTART");
-        activateGoalSongContent.put("requestData", activateGoalSongData);
-        activateGoalSong.put("d", activateGoalSongContent);
-
-        send(activateGoalSong.toString());
-        System.out.println(activateGoalSong.toString());
-    }
     
 
     // Method to load matches from JSON file
@@ -310,10 +296,8 @@ public class App extends WebSocketClient {
     public static void main(String[] args) {
         //String serverUri = "ws://192.168.25.167:4444";
         //String password = "JrXIqKD6qIeV5PNL";
-        //String serverUri = "ws://192.168.2.4:4455";
-        //String password = "WLJR7M2dFyfTK6DV";
-        String serverUri = "ws://localhost:4444";
-        String password = "JrXIqKD6qIeV5PNL";
+        String serverUri = "ws://192.168.2.4:4455";
+        String password = "WLJR7M2dFyfTK6DV";
         
         try {
             // Use JFileChooser to prompt the user for the JSON file
@@ -370,7 +354,6 @@ public class App extends WebSocketClient {
                         if (client.isAuthenticated) {
                             client.setTextInputContent("ScoreTeamA", String.valueOf(ScoreTeamA));
                             client.SaveReplayBuffer();
-                            client.activateGoalSong(NameTeamA);
                         } else {
                             System.out.println("WebSocket is not authenticated yet.");
                         }
@@ -397,8 +380,6 @@ public class App extends WebSocketClient {
     
                         if (client.isAuthenticated) {
                             client.setTextInputContent("ScoreTeamB", String.valueOf(ScoreTeamB));
-                            client.SaveReplayBuffer();
-                            client.activateGoalSong(NameTeamB);
                         } else {
                             System.out.println("WebSocket is not authenticated yet.");
                         }
