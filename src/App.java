@@ -184,6 +184,72 @@ public class App extends WebSocketClient {
         //System.out.println(request.toString());
         //System.out.println("Sent request to update text input: " + inputName + " to new content: " + newTextContent);
     }
+
+    /*public void adjustScoreBoardWidth(String NameTeamA, String NameTeamB){
+       
+        double longestTeamName = 0;
+
+        if (NameTeamA.length() > NameTeamB.length()) {
+            longestTeamName = NameTeamA.length();
+        }
+        else{
+            longestTeamName = NameTeamB.length();
+        }
+
+        double newXscale = 1 + ((longestTeamName - 10) * 0.008);
+
+       
+        requestID++;
+        JSONObject adjustScoreBoardWidth = new JSONObject();
+        JSONObject adjustScoreBoardWidthContent = new JSONObject();
+        adjustScoreBoardWidthContent.put("requestType", "SetSceneItemTransform");
+        adjustScoreBoardWidthContent.put("requestId", requestID);
+
+        JSONObject adjustScoreBoardWidthData = new JSONObject();
+        adjustScoreBoardWidthData.put("sceneName", "Overlay");
+        adjustScoreBoardWidthData.put("sceneItemId", 16);
+
+        JSONObject adjustScoreBoardWidthTransform = new JSONObject();
+        adjustScoreBoardWidthTransform.put("scaleX", newXscale);
+        adjustScoreBoardWidthData.put("sceneItemTransform", adjustScoreBoardWidthTransform);
+
+        adjustScoreBoardWidthContent.put("requestData", adjustScoreBoardWidthData);
+        adjustScoreBoardWidth.put("d", adjustScoreBoardWidthContent);
+        adjustScoreBoardWidth.put("op", 6);
+
+        System.out.println(adjustScoreBoardWidth);
+
+        send(adjustScoreBoardWidth.toString());
+
+        client.adjustScoreBoardWidth(20, newXscale);
+        client.adjustScoreBoardWidth(20, newXscale);
+    }
+
+    public void adjustTeamNamePosition(int item, double newXscale){
+        requestID++;
+        JSONObject adjustTeamNamePosition = new JSONObject();
+        JSONObject adjustTeamNamePositionContent = new JSONObject();
+        adjustTeamNamePositionContent.put("requestType", "SetSceneItemTransform");
+        adjustTeamNamePositionContent.put("requestId", requestID);
+
+        JSONObject adjustTeamNamePositionData = new JSONObject();
+        adjustTeamNamePositionData.put("sceneName", "Overlay");
+        adjustTeamNamePositionData.put("sceneItemId", item);
+
+        double newPositionX = (((850 * newXscale) - 180));
+
+        JSONObject adjustTeamNamePositionTransform = new JSONObject();
+        adjustTeamNamePositionTransform.put("positionX", newPositionX);
+        adjustTeamNamePositionData.put("sceneItemTransform", adjustTeamNamePositionTransform);
+
+        adjustTeamNamePositionContent.put("requestData", adjustTeamNamePositionData);
+        adjustTeamNamePosition.put("d", adjustTeamNamePositionContent);
+        adjustTeamNamePosition.put("op", 6);
+
+        System.out.println(adjustTeamNamePosition);
+
+        send(adjustTeamNamePosition.toString());
+    }*/
     public void SaveReplayBuffer() {
         if (isAuthenticated) {
             requestID++;
@@ -485,6 +551,7 @@ public class App extends WebSocketClient {
                     public void actionPerformed(ActionEvent e) {
                         // Update team labels with the next match
                         client.updateMatchLabels(NameTeamAlabel, NameTeamBLabel, ScoreAlabel, ScoreBlabel);
+                        //client.adjustScoreBoardWidth(NameTeamA, NameTeamB);
                         ScoreTeamA = 0;
                         ScoreTeamB = 0;
                         try {
