@@ -10,14 +10,20 @@ import java.security.MessageDigest;
 import java.util.Base64;
 import java.util.Timer;
 import java.util.TimerTask;
-
+import java.io.IOException;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 import java.util.ArrayList;
+import java.io.File;
 import org.json.JSONTokener;
-import java.awt.event.*;
-import java.io.*;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 public class App extends WebSocketClient {
 
@@ -62,11 +68,8 @@ public class App extends WebSocketClient {
 
     @Override
     public void onMessage(String message) {
+        System.out.println("Received message: " + message);
         JSONObject json = new JSONObject(message);
-
-        if (json.getInt("op") != 5) {
-            System.out.println("Received message: " + message);
-        }
 
         if (json.has("op") && json.getInt("op") == 0) {
             JSONObject authData = json.getJSONObject("d").getJSONObject("authentication");
@@ -184,72 +187,6 @@ public class App extends WebSocketClient {
         //System.out.println(request.toString());
         //System.out.println("Sent request to update text input: " + inputName + " to new content: " + newTextContent);
     }
-
-    /*public void adjustScoreBoardWidth(String NameTeamA, String NameTeamB){
-       
-        double longestTeamName = 0;
-
-        if (NameTeamA.length() > NameTeamB.length()) {
-            longestTeamName = NameTeamA.length();
-        }
-        else{
-            longestTeamName = NameTeamB.length();
-        }
-
-        double newXscale = 1 + ((longestTeamName - 10) * 0.008);
-
-       
-        requestID++;
-        JSONObject adjustScoreBoardWidth = new JSONObject();
-        JSONObject adjustScoreBoardWidthContent = new JSONObject();
-        adjustScoreBoardWidthContent.put("requestType", "SetSceneItemTransform");
-        adjustScoreBoardWidthContent.put("requestId", requestID);
-
-        JSONObject adjustScoreBoardWidthData = new JSONObject();
-        adjustScoreBoardWidthData.put("sceneName", "Overlay");
-        adjustScoreBoardWidthData.put("sceneItemId", 16);
-
-        JSONObject adjustScoreBoardWidthTransform = new JSONObject();
-        adjustScoreBoardWidthTransform.put("scaleX", newXscale);
-        adjustScoreBoardWidthData.put("sceneItemTransform", adjustScoreBoardWidthTransform);
-
-        adjustScoreBoardWidthContent.put("requestData", adjustScoreBoardWidthData);
-        adjustScoreBoardWidth.put("d", adjustScoreBoardWidthContent);
-        adjustScoreBoardWidth.put("op", 6);
-
-        System.out.println(adjustScoreBoardWidth);
-
-        send(adjustScoreBoardWidth.toString());
-
-        client.adjustScoreBoardWidth(20, newXscale);
-        client.adjustScoreBoardWidth(20, newXscale);
-    }
-
-    public void adjustTeamNamePosition(int item, double newXscale){
-        requestID++;
-        JSONObject adjustTeamNamePosition = new JSONObject();
-        JSONObject adjustTeamNamePositionContent = new JSONObject();
-        adjustTeamNamePositionContent.put("requestType", "SetSceneItemTransform");
-        adjustTeamNamePositionContent.put("requestId", requestID);
-
-        JSONObject adjustTeamNamePositionData = new JSONObject();
-        adjustTeamNamePositionData.put("sceneName", "Overlay");
-        adjustTeamNamePositionData.put("sceneItemId", item);
-
-        double newPositionX = (((850 * newXscale) - 180));
-
-        JSONObject adjustTeamNamePositionTransform = new JSONObject();
-        adjustTeamNamePositionTransform.put("positionX", newPositionX);
-        adjustTeamNamePositionData.put("sceneItemTransform", adjustTeamNamePositionTransform);
-
-        adjustTeamNamePositionContent.put("requestData", adjustTeamNamePositionData);
-        adjustTeamNamePosition.put("d", adjustTeamNamePositionContent);
-        adjustTeamNamePosition.put("op", 6);
-
-        System.out.println(adjustTeamNamePosition);
-
-        send(adjustTeamNamePosition.toString());
-    }*/
     public void SaveReplayBuffer() {
         if (isAuthenticated) {
             requestID++;
@@ -319,23 +256,6 @@ public class App extends WebSocketClient {
         send(setCurrentScene.toString());
         System.out.println(setCurrentScene.toString());
     }
-
-    public void activateGoalSong(String scoreGainedTeam){
-        requestID++;
-        JSONObject activateGoalSong = new JSONObject();
-        activateGoalSong.put("op", 6);
-        JSONObject activateGoalSongContent = new JSONObject();
-        activateGoalSongContent.put("requestType", "TriggerMediaInputAction");
-        activateGoalSongContent.put("requestId", requestID);
-        JSONObject activateGoalSongData = new JSONObject();
-        activateGoalSongData.put("inputName", scoreGainedTeam);
-        activateGoalSongData.put("mediaAction", "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_RESTART");
-        activateGoalSongContent.put("requestData", activateGoalSongData);
-        activateGoalSong.put("d", activateGoalSongContent);
-
-        send(activateGoalSong.toString());
-        System.out.println(activateGoalSong.toString());
-    }
     
 
     // Method to load matches from JSON file
@@ -376,10 +296,8 @@ public class App extends WebSocketClient {
     public static void main(String[] args) {
         //String serverUri = "ws://192.168.25.167:4444";
         //String password = "JrXIqKD6qIeV5PNL";
-        //String serverUri = "ws://192.168.2.4:4455";
-        //String password = "WLJR7M2dFyfTK6DV";
-        String serverUri = "ws://localhost:4444";
-        String password = "JrXIqKD6qIeV5PNL";
+        String serverUri = "ws://192.168.2.4:4455";
+        String password = "WLJR7M2dFyfTK6DV";
         
         try {
             // Use JFileChooser to prompt the user for the JSON file
@@ -397,14 +315,14 @@ public class App extends WebSocketClient {
                 client.loadMatches();
 
                 JFrame frame = new JFrame("WFT_OBS_Manager");
-                frame.setSize(370, 590);
+                frame.setSize(1920, 1080);
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                frame.setLayout(null); 
+                frame.setLayout(new BorderLayout()); // Changed layout for better control
 
-                JLabel NameTeamAlabel = new JLabel(NameTeamA, SwingConstants.CENTER);
-                JLabel NameTeamBLabel = new JLabel(NameTeamB, SwingConstants.CENTER);
-                JLabel ScoreAlabel = new JLabel(String.valueOf(ScoreTeamA), SwingConstants.CENTER);
-                JLabel ScoreBlabel = new JLabel(String.valueOf(ScoreTeamB), SwingConstants.CENTER);
+                JLabel NameTeamAlabel = new JLabel(NameTeamA);
+                JLabel NameTeamBLabel = new JLabel(NameTeamB);
+                JLabel ScoreAlabel = new JLabel(String.valueOf(ScoreTeamA));
+                JLabel ScoreBlabel = new JLabel(String.valueOf(ScoreTeamB));
                 JLabel timerLabel = new JLabel("00:00");  // Timer starts at 10:00
                 JButton increaseScoreAbutton = new JButton("+");
                 JButton decreaseScoreAbutton = new JButton("-");
@@ -436,7 +354,6 @@ public class App extends WebSocketClient {
                         if (client.isAuthenticated) {
                             client.setTextInputContent("ScoreTeamA", String.valueOf(ScoreTeamA));
                             client.SaveReplayBuffer();
-                            client.activateGoalSong(NameTeamA);
                         } else {
                             System.out.println("WebSocket is not authenticated yet.");
                         }
@@ -463,8 +380,6 @@ public class App extends WebSocketClient {
     
                         if (client.isAuthenticated) {
                             client.setTextInputContent("ScoreTeamB", String.valueOf(ScoreTeamB));
-                            client.SaveReplayBuffer();
-                            client.activateGoalSong(NameTeamB);
                         } else {
                             System.out.println("WebSocket is not authenticated yet.");
                         }
@@ -551,7 +466,6 @@ public class App extends WebSocketClient {
                     public void actionPerformed(ActionEvent e) {
                         // Update team labels with the next match
                         client.updateMatchLabels(NameTeamAlabel, NameTeamBLabel, ScoreAlabel, ScoreBlabel);
-                        //client.adjustScoreBoardWidth(NameTeamA, NameTeamB);
                         ScoreTeamA = 0;
                         ScoreTeamB = 0;
                         try {
@@ -576,69 +490,65 @@ public class App extends WebSocketClient {
                     }
                 });
 
+                JPanel PanelScoreA = new JPanel();
+                PanelScoreA.setLayout(new GridBagLayout());
+                GridBagConstraints gbcA = new GridBagConstraints();
+                gbcA.gridx = 0;
+                gbcA.gridy = 0;
+                gbcA.anchor = GridBagConstraints.CENTER;
+                PanelScoreA.add(increaseScoreAbutton, gbcA); 
+                gbcA.gridy = 1; 
+                PanelScoreA.add(ScoreAlabel, gbcA);
+                gbcA.gridy = 2; 
+                PanelScoreA.add(decreaseScoreAbutton, gbcA);
+                
+    
+                JPanel PanelScoreB = new JPanel();
+                PanelScoreB.setLayout(new GridBagLayout());
+                GridBagConstraints gbcB = new GridBagConstraints();
+                gbcB.gridx = 0;
+                gbcB.gridy = 0;
+                gbcB.anchor = GridBagConstraints.CENTER;
+                PanelScoreB.add(increaseScoreBbutton, gbcB); 
+                gbcB.gridy = 1; 
+                PanelScoreB.add(ScoreBlabel, gbcB);
+                gbcB.gridy = 2;
+                PanelScoreB.add(decreaseScoreBbutton, gbcB);
+    
                 JPanel ScorePanel = new JPanel();
-                ScorePanel.setLayout(null);
-                ScorePanel.add(increaseScoreAbutton);
-                increaseScoreAbutton.setBounds(120, 10, 50,30);
-                ScorePanel.add(ScoreAlabel);
-                ScoreAlabel.setBounds(120, 50, 50,30);
-                ScorePanel.add(decreaseScoreAbutton);
-                decreaseScoreAbutton.setBounds(120, 90, 50,30);
-                ScorePanel.add(increaseScoreBbutton);
-                increaseScoreBbutton.setBounds(180, 10, 50, 30);
-                ScorePanel.add(ScoreBlabel);
-                ScoreBlabel.setBounds(180, 50, 50, 30);
-                ScorePanel.add(decreaseScoreBbutton);
-                decreaseScoreBbutton.setBounds(180, 90, 50, 30);
+                ScorePanel.setLayout(new GridBagLayout());
                 ScorePanel.add(NameTeamAlabel);
-                NameTeamAlabel.setBounds(10, 50, 100, 30);
+                ScorePanel.add(PanelScoreA);
+                ScorePanel.add(PanelScoreB);
                 ScorePanel.add(NameTeamBLabel);
-                NameTeamBLabel.setBounds(220, 50, 100, 30);
                 ScorePanel.add(nextGameButton);
-                nextGameButton.setBounds(125, 130, 100, 30);
     
                 JPanel TimerPanel = new JPanel();
-                TimerPanel.setLayout(null);
-                TimerPanel.add(new JLabel(" Set Minutes:") {{setBounds(10, 10, 100, 30);}});
-                TimerPanel.add(minutesInput );
-                minutesInput.setBounds(120, 10, 100, 30);
-                TimerPanel.add(new JLabel(" Set Seconds:") {{setBounds(10, 50, 100, 30);}});
+                TimerPanel.setLayout(new GridBagLayout());
+                TimerPanel.add(new JLabel("  Set Minutes:"));
+                TimerPanel.add(minutesInput);
+                TimerPanel.add(new JLabel("  Set Seconds:"));
                 TimerPanel.add(secondsInput);
-                secondsInput.setBounds(120, 50, 100, 30);  
+                TimerPanel.add(new JLabel("  Timer:")); 
                 TimerPanel.add(timerLabel);
-                TimerPanel.add(new JLabel("Timer") {{setBounds(10, 90, 80, 30);}});
-                timerLabel.setBounds(120, 90, 80, 30); 
                 TimerPanel.add(startButton);
-                startButton.setBounds(10, 130, 70, 30);
                 TimerPanel.add(pauseButton);
-                pauseButton.setBounds(90, 130, 70, 30);
                 TimerPanel.add(resetButton);
-                resetButton.setBounds(170, 130, 70, 30);
 
                 JPanel MatchManager = new JPanel();
-                MatchManager.setLayout(null);
-                MatchManager.add(new JLabel("Select Match:") {{setBounds(10, 10, 100, 30);}});
+                MatchManager.setLayout(new GridBagLayout());
+                MatchManager.add(new JLabel("Select Match:"));
                 MatchManager.add(matchDropdown);
-                matchDropdown.setBounds(120, 10, 150, 30);
-                MatchManager.add(new JLabel("Home Team:") {{setBounds(10, 50, 100, 30);}});
+                MatchManager.add(new JLabel("Home Team:"));
                 MatchManager.add(homeField);
-                homeField.setBounds(120, 50, 150, 30);
-                MatchManager.add(new JLabel("Away Team:") {{setBounds(10, 90, 100, 30);}});
+                MatchManager.add(new JLabel("Away Team:"));
                 MatchManager.add(awayField);
-                awayField.setBounds(120, 90, 150, 30);
                 MatchManager.add(saveButton);
-                saveButton.setBounds(10, 130, 80, 30);
 
                 // Add all to the frame
-                frame.add(TimerPanel);
-                TimerPanel.setBounds(10, 10, 330, 170);
-                TimerPanel.setBackground(Color.gray);
-                frame.add(ScorePanel);
-                ScorePanel.setBounds(10,190,330, 170);
-                ScorePanel.setBackground(Color.gray);
-                frame.add(MatchManager);
-                MatchManager.setBounds(10, 370, 330, 170);
-                MatchManager.setBackground(Color.gray);
+                frame.add(ScorePanel, BorderLayout.NORTH);
+                frame.add(TimerPanel, BorderLayout.CENTER);
+                frame.add(MatchManager, BorderLayout.SOUTH);
                 frame.setVisible(true);
 
             } else {
