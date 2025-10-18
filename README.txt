@@ -8,7 +8,7 @@
 8. Replay Buffer aktiveren und gewünschte Länge einstellen (bisher immer 10s)
 9. Recording Path überprüfen und im Zweifelsfall in Java updaten (Rec Settings .MKV Dateien, Use Stream Encoder für Video und FFmpeg AAC für Audio (Kann zwischen mac OS und Windows variieren(Regie iMac von letzem Mal finden und ggf .txt updaten)))
 10. Sichergehen dass die Torsong audioquelle einen Output hat aber nicht im Stream auftaucht!!!!!
-11. TESTEN!!!!
+11. TESTEN!!!! (zum starten in vsc F5 drücken und eine valide matches.json auswählen, wenn Programm nicht startet dann war es eine invalide .json (braucht 4 Komponenten(away, id, title, home)))
 
 12. mit Youtube verbinden und TESTEN!!
 13. Matches.json Dateien updaten
