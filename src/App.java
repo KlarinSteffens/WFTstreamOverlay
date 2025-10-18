@@ -21,7 +21,7 @@ import java.io.*;
 
 public class App extends WebSocketClient {
 
-//////////////////////////////////////////////Variablen\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+//////////////////////////////////////////////Variables\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     //websocketConnection
     private String password;
     private String challenge;
@@ -48,7 +48,7 @@ public class App extends WebSocketClient {
     private int currentMatchIndex = 0;
     public static String MatchTitle = "";
 
-//////////////////////////////////////////////Websocket intizialisieren\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+//////////////////////////////////////////////Websocket initializing\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
     public App(URI serverUri, String password) {
         super(serverUri);
@@ -260,6 +260,7 @@ public class App extends WebSocketClient {
             saveBufferRequestContent.put("requestId", requestID);
             saveBufferRequest.put("d", saveBufferRequestContent);
             send(saveBufferRequest.toString());
+            System.out.println(saveBufferRequest.toString());
         } else {
             System.out.println("WebSocket is not authenticated yet.");
         }
@@ -337,8 +338,6 @@ public class App extends WebSocketClient {
         System.out.println(activateGoalSong.toString());
     }
     
-
-    // Method to load matches from JSON file
     private void loadMatches() throws IOException {
         try (InputStream is = new FileInputStream(jsonFilePath)) {
             JSONTokener tokener = new JSONTokener(is);
@@ -489,7 +488,11 @@ public class App extends WebSocketClient {
 
                 triggerReplayButton.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e){
-                        client.SaveReplayBuffer();
+                         if (client.isAuthenticated) {
+                            client.SaveReplayBuffer();
+                        } else {
+                            System.out.println("WebSocket is not authenticated yet.");
+                        }
                     }
                 });
     
@@ -552,11 +555,9 @@ public class App extends WebSocketClient {
                     }
                 });
 
-                // Next Game button to load next match
                 JButton nextGameButton = new JButton("Next Game");
                 nextGameButton.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
-                        // Update team labels with the next match
                         client.updateMatchLabels(NameTeamAlabel, NameTeamBLabel, ScoreAlabel, ScoreBlabel);
                         //client.adjustScoreBoardWidth(NameTeamA, NameTeamB);
                         ScoreTeamA = 0;
