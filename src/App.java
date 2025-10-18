@@ -378,10 +378,10 @@ public class App extends WebSocketClient {
         //String password = "JrXIqKD6qIeV5PNL";
         //String serverUri = "ws://192.168.2.4:4455";
         //String password = "WLJR7M2dFyfTK6DV";
-        //String serverUri = "ws://localhost:4444";
-        //String password = "JrXIqKD6qIeV5PNL";
-        String serverUri = "ws://localhost:4455";
-        String password = "oLJYZe7jziL25J0o";
+        String serverUri = "ws://localhost:4444";
+        String password = "JrXIqKD6qIeV5PNL";
+        //String serverUri = "ws://localhost:4455";
+        //String password = "oLJYZe7jziL25J0o";
         
         try {
             // Use JFileChooser to prompt the user for the JSON file
@@ -412,6 +412,7 @@ public class App extends WebSocketClient {
                 JButton decreaseScoreAbutton = new JButton("-");
                 JButton increaseScoreBbutton = new JButton("+");
                 JButton decreaseScoreBbutton = new JButton("-");
+                JButton triggerReplayButton = new JButton("Replay");
                 JTextField minutesInput = new JTextField("6", 2);
                 minutesInput.setColumns(20);
                 JTextField secondsInput = new JTextField("0", 2);
@@ -437,7 +438,6 @@ public class App extends WebSocketClient {
     
                         if (client.isAuthenticated) {
                             client.setTextInputContent("ScoreTeamA", String.valueOf(ScoreTeamA));
-                            client.SaveReplayBuffer();
                             client.activateGoalSong(NameTeamA);
                         } else {
                             System.out.println("WebSocket is not authenticated yet.");
@@ -465,7 +465,6 @@ public class App extends WebSocketClient {
     
                         if (client.isAuthenticated) {
                             client.setTextInputContent("ScoreTeamB", String.valueOf(ScoreTeamB));
-                            client.SaveReplayBuffer();
                             client.activateGoalSong(NameTeamB);
                         } else {
                             System.out.println("WebSocket is not authenticated yet.");
@@ -485,6 +484,12 @@ public class App extends WebSocketClient {
                         } else {
                             System.out.println("WebSocket is not authenticated yet.");
                         }
+                    }
+                });
+
+                triggerReplayButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e){
+                        client.SaveReplayBuffer();
                     }
                 });
     
@@ -578,6 +583,25 @@ public class App extends WebSocketClient {
                     }
                 });
 
+    
+                JPanel TimerPanel = new JPanel();
+                TimerPanel.setLayout(null);
+                TimerPanel.add(new JLabel(" Set Minutes:") {{setBounds(10, 10, 100, 30);}});
+                TimerPanel.add(minutesInput );
+                minutesInput.setBounds(120, 10, 100, 30);
+                TimerPanel.add(new JLabel(" Set Seconds:") {{setBounds(10, 50, 100, 30);}});
+                TimerPanel.add(secondsInput);
+                secondsInput.setBounds(120, 50, 100, 30);  
+                TimerPanel.add(timerLabel);
+                TimerPanel.add(new JLabel("Timer") {{setBounds(10, 90, 80, 30);}});
+                timerLabel.setBounds(120, 90, 80, 30); 
+                TimerPanel.add(startButton);
+                startButton.setBounds(10, 130, 70, 30);
+                TimerPanel.add(pauseButton);
+                pauseButton.setBounds(90, 130, 70, 30);
+                TimerPanel.add(resetButton);
+                resetButton.setBounds(170, 130, 70, 30);
+
                 JPanel ScorePanel = new JPanel();
                 ScorePanel.setLayout(null);
                 ScorePanel.add(increaseScoreAbutton);
@@ -597,25 +621,9 @@ public class App extends WebSocketClient {
                 ScorePanel.add(NameTeamBLabel);
                 NameTeamBLabel.setBounds(220, 50, 100, 30);
                 ScorePanel.add(nextGameButton);
-                nextGameButton.setBounds(125, 130, 100, 30);
-    
-                JPanel TimerPanel = new JPanel();
-                TimerPanel.setLayout(null);
-                TimerPanel.add(new JLabel(" Set Minutes:") {{setBounds(10, 10, 100, 30);}});
-                TimerPanel.add(minutesInput );
-                minutesInput.setBounds(120, 10, 100, 30);
-                TimerPanel.add(new JLabel(" Set Seconds:") {{setBounds(10, 50, 100, 30);}});
-                TimerPanel.add(secondsInput);
-                secondsInput.setBounds(120, 50, 100, 30);  
-                TimerPanel.add(timerLabel);
-                TimerPanel.add(new JLabel("Timer") {{setBounds(10, 90, 80, 30);}});
-                timerLabel.setBounds(120, 90, 80, 30); 
-                TimerPanel.add(startButton);
-                startButton.setBounds(10, 130, 70, 30);
-                TimerPanel.add(pauseButton);
-                pauseButton.setBounds(90, 130, 70, 30);
-                TimerPanel.add(resetButton);
-                resetButton.setBounds(170, 130, 70, 30);
+                nextGameButton.setBounds(180, 130, 100, 30);
+                ScorePanel.add(triggerReplayButton);
+                triggerReplayButton.setBounds(70,130,100,30);
 
                 JPanel MatchManager = new JPanel();
                 MatchManager.setLayout(null);

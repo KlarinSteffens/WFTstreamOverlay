@@ -1,172 +1,170 @@
-{
-    "matches": [
-        {
-            "id":"1",
-            "title":"Gruppe A",
-            "home":"United FC",
-            "away":"Wu´s Drachenkrieger"
-        },
-        {
-            "id":"2",
-            "title":"Gruppe A",
-            "home":"",
-            "away":""
-        },
-        {
-            "id":"3",
-            "title":"Gruppe B",
-            "home":"",
-            "away":""
-        },
-        {
-            "id":"4",
-            "title":"Gruppe B",
-            "home":"",
-            "away":""
-        },
-        {
-            "id":"5",
-            "title":"Gruppe C",
-            "home":"",
-            "away":""
-        },
-        {
-            "id":"6",
-            "title":"Gruppe C",
-            "home":"",
-            "away":""
-        },
-        {
-            "id":"7",
-            "title":"Gruppe D",
-            "home":"",
-            "away":""
-        },
-        {
-            "id":"8",
-            "title":"Gruppe A",
-            "home":"",
-            "away":""
-        },
-        {
-            "id":"9",
-            "title":"Gruppe A",
-            "home":"",
-            "away":""
-        },
-        {
-            "id":"10",
-            "title":"Gruppe B",
-            "home":"",
-            "away":""
-        },
-        {
-            "id":"11",
-            "title":"Gruppe B",
-            "home":"",
-            "away":""
-        },
-        {
-            "id":"12",
-            "title":"Gruppe C",
-            "home":"",
-            "away":""
-        },
-        {
-            "id":"13",
-            "title":"Gruppe C",
-            "home":"",
-            "away":""
-        },
-        {
-            "id":"14",
-            "title":"Gruppe D",
-            "home":"",
-            "away":""
-        },
-        {
-            "id":"15",
-            "title":"Gruppe A",
-            "home":"",
-            "away":""
-        },
-        {
-            "id":"16",
-            "title":"Gruppe A",
-            "home":"",
-            "away":""
-        },
-        {
-            "id":"17",
-            "title":"Gruppe B",
-            "home":"",
-            "away":""
-        },
-        {
-            "id":"18",
-            "title":"Gruppe B",
-            "home":"",
-            "away":""
-        },
-        {
-            "id":"19",
-            "title":"Gruppe C",
-            "home":"",
-            "away":""
-        },
-        {
-            "id":"20",
-            "title":"Gruppe C",
-            "home":"",
-            "away":""
-        },
-        {
-            "id":"21",
-            "title":"Gruppe D",
-            "home":"",
-            "away":""
-        },
-        {
-            "id":"22",
-            "title":"Viertelfinal",
-            "home":"",
-            "away":""
-        },
-        {
-            "id":"23",
-            "title":"Viertelfinal",
-            "home":"",
-            "away":""
-        },
-        {
-            "id":"24",
-            "title":"Viertelfinal",
-            "home":"",
-            "away":""
-        },
-        {
-            "id":"25",
-            "title":"Viertelfinal",
-            "home":"",
-            "away":""
-        },
-        {
-            "id":"26",
-            "title":"Halbfinale",
-            "home":"",
-            "away":""
-        },
-        {            
-            "id":"27",
-            "title":"Halbfinale",
-            "home":"",
-            "away":""
-        },
-        {            
-            "id":"28",
-            "title":"Finale",
-            "home":"",
-            "away":""
-        }
-    ]
-}
+{"matches": [
+    {
+        "away": "Wu´s Drachenkrieger",
+        "id": "1",
+        "title": "Gruppe A",
+        "home": "United FC"
+    },
+    {
+        "away": "",
+        "id": "2",
+        "title": "Gruppe A",
+        "home": ""
+    },
+    {
+        "away": "",
+        "id": "3",
+        "title": "Gruppe B",
+        "home": ""
+    },
+    {
+        "away": "Test",
+        "id": "4",
+        "title": "Gruppe B",
+        "home": "Test"
+    },
+    {
+        "away": "",
+        "id": "5",
+        "title": "Gruppe C",
+        "home": ""
+    },
+    {
+        "away": "",
+        "id": "6",
+        "title": "Gruppe C",
+        "home": ""
+    },
+    {
+        "away": "",
+        "id": "7",
+        "title": "Gruppe D",
+        "home": ""
+    },
+    {
+        "away": "",
+        "id": "8",
+        "title": "Gruppe A",
+        "home": ""
+    },
+    {
+        "away": "",
+        "id": "9",
+        "title": "Gruppe A",
+        "home": ""
+    },
+    {
+        "away": "",
+        "id": "10",
+        "title": "Gruppe B",
+        "home": ""
+    },
+    {
+        "away": "",
+        "id": "11",
+        "title": "Gruppe B",
+        "home": ""
+    },
+    {
+        "away": "",
+        "id": "12",
+        "title": "Gruppe C",
+        "home": ""
+    },
+    {
+        "away": "",
+        "id": "13",
+        "title": "Gruppe C",
+        "home": ""
+    },
+    {
+        "away": "",
+        "id": "14",
+        "title": "Gruppe D",
+        "home": ""
+    },
+    {
+        "away": "",
+        "id": "15",
+        "title": "Gruppe A",
+        "home": ""
+    },
+    {
+        "away": "",
+        "id": "16",
+        "title": "Gruppe A",
+        "home": ""
+    },
+    {
+        "away": "",
+        "id": "17",
+        "title": "Gruppe B",
+        "home": ""
+    },
+    {
+        "away": "",
+        "id": "18",
+        "title": "Gruppe B",
+        "home": ""
+    },
+    {
+        "away": "",
+        "id": "19",
+        "title": "Gruppe C",
+        "home": ""
+    },
+    {
+        "away": "",
+        "id": "20",
+        "title": "Gruppe C",
+        "home": ""
+    },
+    {
+        "away": "",
+        "id": "21",
+        "title": "Gruppe D",
+        "home": ""
+    },
+    {
+        "away": "",
+        "id": "22",
+        "title": "Viertelfinal",
+        "home": ""
+    },
+    {
+        "away": "",
+        "id": "23",
+        "title": "Viertelfinal",
+        "home": ""
+    },
+    {
+        "away": "",
+        "id": "24",
+        "title": "Viertelfinal",
+        "home": ""
+    },
+    {
+        "away": "",
+        "id": "25",
+        "title": "Viertelfinal",
+        "home": ""
+    },
+    {
+        "away": "",
+        "id": "26",
+        "title": "Halbfinale",
+        "home": ""
+    },
+    {
+        "away": "",
+        "id": "27",
+        "title": "Halbfinale",
+        "home": ""
+    },
+    {
+        "away": "",
+        "id": "28",
+        "title": "Finale",
+        "home": ""
+    }
+]}
