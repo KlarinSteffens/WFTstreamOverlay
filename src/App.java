@@ -378,8 +378,10 @@ public class App extends WebSocketClient {
         //String password = "JrXIqKD6qIeV5PNL";
         //String serverUri = "ws://192.168.2.4:4455";
         //String password = "WLJR7M2dFyfTK6DV";
-        String serverUri = "ws://localhost:4444";
-        String password = "JrXIqKD6qIeV5PNL";
+        //String serverUri = "ws://localhost:4444";
+        //String password = "JrXIqKD6qIeV5PNL";
+        String serverUri = "ws://localhost:4455";
+        String password = "oLJYZe7jziL25J0o";
         
         try {
             // Use JFileChooser to prompt the user for the JSON file
