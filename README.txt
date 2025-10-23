@@ -13,3 +13,5 @@
 12. mit Youtube verbinden und TESTEN!!
 13. Matches.json Dateien updaten
 14. Torsongs einspeisen (ACHTUNG Torsongs müssen exakt genauso heißen wie im Matches.json, ansonsten funktioniert es nicht!)
+
+PS: Es kann auch sein dass ihr das MoveTransition und weiter OBS Plugins braucht!
