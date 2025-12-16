@@ -536,6 +536,16 @@ public class App extends WebSocketClient {
                         }
                     }
                 });
+                matchDropdown.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        int selectedIndex = matchDropdown.getSelectedIndex();
+                        if (selectedIndex >= 0) {
+                            JSONObject selectedMatch = matchesArray.getJSONObject(selectedIndex);
+                            homeField.setText(selectedMatch.getString("home"));
+                            awayField.setText(selectedMatch.getString("away"));
+                        }
+                    }
+                });
                 saveButton.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -545,9 +555,8 @@ public class App extends WebSocketClient {
                             JSONObject selectedMatch = matchesArray.getJSONObject(selectedIndex);
         
                             // Update the match data with new input values
-                            selectedMatch.put("home", homeField.getText());
                             selectedMatch.put("away", awayField.getText());
-        
+                            selectedMatch.put("home", homeField.getText());
                             // Save updated JSON data back to the file
                             saveJSONData();
                             JOptionPane.showMessageDialog(frame, "Match updated successfully!");
@@ -738,7 +747,6 @@ public class App extends WebSocketClient {
         try (OutputStream os = new FileOutputStream(jsonFilePath)) {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("matches", matchesArray);
-
             os.write(jsonObject.toString(4).getBytes()); // Write with indentation
         } catch (Exception e) {
             e.printStackTrace();

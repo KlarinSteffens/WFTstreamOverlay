@@ -14,7 +14,7 @@
     {
         "home": "Season Strikers",
         "id": "3",
-        "title": "Gruppe D",
+        "title": "Gruppe ?",
         "away": "null"
     },
     {
@@ -68,7 +68,7 @@
     {
         "home": "null",
         "id": "12",
-        "title": "Gruppe ?",
+        "title": "Gruppe D",
         "away": "G-67"
     },
     {
@@ -86,13 +86,13 @@
     {
         "home": "Die Väterchen",
         "id": "15",
-        "title": "Gruppe B",
+        "title": "Gruppe A",
         "away": "Babarenhütte"
     },
     {
         "home": "1. FC Sieg sonst 6",
         "id": "16",
-        "title": "Gruppe B",
+        "title": "Gruppe C",
         "away": "null"
     },
     {
@@ -104,67 +104,67 @@
     {
         "home": "Gewinner Tag 1",
         "id": "18",
-        "title": "Gruppe D",
+        "title": "Gruppe A",
         "away": "Die wilden Wickel"
     },
     {
         "home": "null",
         "id": "19",
-        "title": "Gruppe ?",
+        "title": "Gruppe D",
         "away": "null"
     },
     {
         "home": "Osimhänner",
         "id": "20",
-        "title": "Gruppe ?",
+        "title": "Gruppe B",
         "away": "Louvre Looters"
     },
     {
         "home": "G-67",
         "id": "21",
-        "title": "",
+        "title": "Gruppe D",
         "away": "Season Strikers"
     },
     {
         "home": "Goblin Gang",
         "id": "22",
-        "title": "",
+        "title": "Gruppe A",
         "away": "Babarenhütte"
     },
     {
         "home": "Louvre Looters",
         "id": "23",
-        "title": "",
+        "title": "Gruppe B",
         "away": "Gewinner Tag 1"
     },
     {
         "home": "Die Väterchen",
         "id": "24",
-        "title": "",
+        "title": "Gruppe A",
         "away": "Bellas Ballers"
     },
     {
         "home": "Los Balaneros",
         "id": "25",
-        "title": "",
+        "title": "Gruppe C",
         "away": "null"
     },
     {
         "home": "Teletoms Teletubbies",
         "id": "26",
-        "title": "",
+        "title": "Gruppe C",
         "away": "1. FC Sieg sonst 6"
     },
     {
         "home": "SB Export",
         "id": "27",
-        "title": "",
+        "title": "Gruppe B",
         "away": "Louvre Looters"
     },
     {
         "home": "Osimhänner",
         "id": "28",
-        "title": "",
+        "title": "Gruppe B",
         "away": "Gewinner Tag 1"
     },
     {
