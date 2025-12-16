@@ -1,212 +1,212 @@
 {"matches": [
     {
-        "home": "G-67",
+        "away": "GIG- Gewinnen ist geil",
         "id": "1",
-        "title": "Gruppe ?",
-        "away": "null"
+        "title": "Gruppe D",
+        "home": "G-67"
     },
     {
-        "home": "SB Export",
+        "away": "Gewinner Tag 1",
         "id": "2",
         "title": "Gruppe B",
-        "away": "Gewinner Tag 1"
+        "home": "SB Export"
     },
     {
-        "home": "Season Strikers",
+        "away": "null",
         "id": "3",
-        "title": "Gruppe ?",
-        "away": "null"
+        "title": "Gruppe D",
+        "home": "Season Strikers"
     },
     {
-        "home": "Goblin Gang",
+        "away": "Die Väterchen",
         "id": "4",
         "title": "Gruppe A",
-        "away": "Die Väterchen"
+        "home": "Goblin Gang"
     },
     {
-        "home": "Die wilden Wickel",
+        "away": "Osimhänner",
         "id": "5",
         "title": "Gruppe B",
-        "away": "Osimhänner"
+        "home": "Die wilden Wickel"
     },
     {
-        "home": "Los Balaneros",
+        "away": "1. FC Sieg sonst 6",
         "id": "6",
         "title": "Gruppe C",
-        "away": "1. FC Sieg sonst 6"
+        "home": "Los Balaneros"
     },
     {
-        "home": "Bellas Ballers",
+        "away": "Babarenhütte",
         "id": "7",
         "title": "Gruppe A",
-        "away": "Babarenhütte"
+        "home": "Bellas Ballers"
     },
     {
-        "home": "null",
+        "away": "Teletoms Teletubbies",
         "id": "8",
         "title": "Gruppe C",
-        "away": "Teletoms Teletubbies"
+        "home": "Die Discounter"
     },
     {
-        "home": "Louvre Looters",
+        "away": "Die wilden Wickel",
         "id": "9",
         "title": "Gruppe B",
-        "away": "Die wilden Wickel"
+        "home": "Louvre Looters"
     },
     {
-        "home": "Osimhänner",
+        "away": "SB Export",
         "id": "10",
         "title": "Gruppe B",
-        "away": "SB Export"
+        "home": "Osimhänner"
     },
     {
-        "home": "null",
+        "away": "Season Strikers",
         "id": "11",
         "title": "Gruppe D",
-        "away": "Season Strikers"
+        "home": "GIG- Gewinnen ist geil"
     },
     {
-        "home": "null",
+        "away": "G-67",
         "id": "12",
         "title": "Gruppe D",
-        "away": "G-67"
+        "home": "null"
     },
     {
-        "home": "Bellas Ballers",
+        "away": "Goblin Gang",
         "id": "13",
         "title": "Gruppe A",
-        "away": "Goblin Gang"
+        "home": "Bellas Ballers"
     },
     {
-        "home": "Die wilden Wickel",
+        "away": "SB Export",
         "id": "14",
         "title": "Gruppe A",
-        "away": "SB Export"
+        "home": "Die wilden Wickel"
     },
     {
-        "home": "Die Väterchen",
+        "away": "Babarenhütte",
         "id": "15",
         "title": "Gruppe A",
-        "away": "Babarenhütte"
+        "home": "Die Väterchen"
     },
     {
-        "home": "1. FC Sieg sonst 6",
+        "away": "Die Discounter",
         "id": "16",
         "title": "Gruppe C",
-        "away": "null"
+        "home": "1. FC Sieg sonst 6"
     },
     {
-        "home": "Teletoms Teletubbies",
+        "away": "Los Balaneros",
         "id": "17",
         "title": "Gruppe C",
-        "away": "Los Balaneros"
+        "home": "Teletoms Teletubbies"
     },
     {
-        "home": "Gewinner Tag 1",
+        "away": "Die wilden Wickel",
         "id": "18",
         "title": "Gruppe A",
-        "away": "Die wilden Wickel"
+        "home": "Gewinner Tag 1"
     },
     {
-        "home": "null",
+        "away": "GIG- Gewinnen ist geil ",
         "id": "19",
         "title": "Gruppe D",
-        "away": "null"
+        "home": "null"
     },
     {
-        "home": "Osimhänner",
+        "away": "Louvre Looters",
         "id": "20",
         "title": "Gruppe B",
-        "away": "Louvre Looters"
+        "home": "Osimhänner"
     },
     {
-        "home": "G-67",
+        "away": "Season Strikers",
         "id": "21",
         "title": "Gruppe D",
-        "away": "Season Strikers"
+        "home": "G-67"
     },
     {
-        "home": "Goblin Gang",
+        "away": "Babarenhütte",
         "id": "22",
         "title": "Gruppe A",
-        "away": "Babarenhütte"
+        "home": "Goblin Gang"
     },
     {
-        "home": "Louvre Looters",
+        "away": "Gewinner Tag 1",
         "id": "23",
         "title": "Gruppe B",
-        "away": "Gewinner Tag 1"
+        "home": "Louvre Looters"
     },
     {
-        "home": "Die Väterchen",
+        "away": "Bellas Ballers",
         "id": "24",
         "title": "Gruppe A",
-        "away": "Bellas Ballers"
+        "home": "Die Väterchen"
     },
     {
-        "home": "Los Balaneros",
+        "away": "Die Discounter",
         "id": "25",
         "title": "Gruppe C",
-        "away": "null"
+        "home": "Los Balaneros"
     },
     {
-        "home": "Teletoms Teletubbies",
+        "away": "1. FC Sieg sonst 6",
         "id": "26",
         "title": "Gruppe C",
-        "away": "1. FC Sieg sonst 6"
+        "home": "Teletoms Teletubbies"
     },
     {
-        "home": "SB Export",
+        "away": "Louvre Looters",
         "id": "27",
         "title": "Gruppe B",
-        "away": "Louvre Looters"
+        "home": "SB Export"
     },
     {
-        "home": "Osimhänner",
+        "away": "Gewinner Tag 1",
         "id": "28",
         "title": "Gruppe B",
-        "away": "Gewinner Tag 1"
+        "home": "Osimhänner"
     },
     {
-        "home": "1. Gruppe A",
+        "away": "2. Gruppe B",
         "id": "29",
         "title": "Viertelfinal",
-        "away": "2. Gruppe B"
+        "home": "1. Gruppe A"
     },
     {
-        "home": "1. Gruppe C",
+        "away": "2. Gruppe D",
         "id": "30",
         "title": "Viertelfinal",
-        "away": "2. Gruppe D"
+        "home": "1. Gruppe C"
     },
     {
-        "home": "2. Gruppe A",
+        "away": "1. Gruppe B",
         "id": "31",
         "title": "Viertelfinal",
-        "away": "1. Gruppe B"
+        "home": "2. Gruppe A"
     },
     {
-        "home": "2. Gruppe C",
+        "away": "1. Gruppe D",
         "id": "32",
         "title": "Viertelfinal",
-        "away": "1. Gruppe D"
+        "home": "2. Gruppe C"
     },
     {
-        "home": "Gewinner VF1",
+        "away": "Gewinner VF2",
         "id": "33",
         "title": "Halbfinale",
-        "away": "Gewinner VF2"
+        "home": "Gewinner VF1"
     },
     {
-        "home": "Gewinner VF3",
+        "away": "Gewinner VF4",
         "id": "34",
         "title": "Halbfinale",
-        "away": "Gewinner VF4"
+        "home": "Gewinner VF3"
     },
     {
-        "home": "Gewinner HF1",
+        "away": "Gewinner HF2",
         "id": "35",
         "title": "Finale",
-        "away": "Gewinner HF2"
+        "home": "Gewinner HF1"
     }
 ]}
