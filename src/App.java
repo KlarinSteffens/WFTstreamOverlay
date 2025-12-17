@@ -6,6 +6,8 @@ import org.json.JSONArray;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.util.Base64;
 import java.util.Timer;
@@ -31,6 +33,7 @@ public class App extends WebSocketClient {
     //config
     public static String serverUri;
     public static String password;
+    public static Path goalSongPath;
     ///////////////Scores&Names&timer
     public static int ScoreTeamA = 0;
     public static int ScoreTeamB = 0;
@@ -56,7 +59,7 @@ public class App extends WebSocketClient {
 
     public App(URI serverUri, String password) {
         super(serverUri);
-        this.password = password;
+        App.password = password;
     }
 
     @Override
@@ -259,8 +262,26 @@ public class App extends WebSocketClient {
         send(setCurrentScene.toString());
         System.out.println(setCurrentScene.toString());
     }
+    public void setGoalSongInput(String scoreGainedTeam){
+        requestID++;
+        JSONObject setGoalSong = new JSONObject();
+        setGoalSong.put("op", 6);
+        JSONObject setGoalSongContent = new JSONObject();
+        setGoalSongContent.put("requestType", "SetInputSettings");
+        setGoalSongContent.put("requestId", requestID);
+        JSONObject setGoalSongData = new JSONObject();
+        setGoalSongData.put("inputName", "TorSong");
+        JSONObject setGoalSongDataSettings = new JSONObject();
+        setGoalSongDataSettings.put("local_file", goalSongPath + "\\" + scoreGainedTeam + ".mp3");
+        setGoalSongData.put("inputSettings",setGoalSongDataSettings);
+        setGoalSongContent.put("requestData", setGoalSongData);
+        setGoalSong.put("d", setGoalSongContent);
 
-    public void activateGoalSong(String scoreGainedTeam){
+        send(setGoalSong.toString());
+        System.out.println(setGoalSong.toString());
+        activateGoalSong();
+    }
+    public void activateGoalSong(){
         requestID++;
         JSONObject activateGoalSong = new JSONObject();
         activateGoalSong.put("op", 6);
@@ -268,7 +289,7 @@ public class App extends WebSocketClient {
         activateGoalSongContent.put("requestType", "TriggerMediaInputAction");
         activateGoalSongContent.put("requestId", requestID);
         JSONObject activateGoalSongData = new JSONObject();
-        activateGoalSongData.put("inputName", scoreGainedTeam);
+        activateGoalSongData.put("inputName", "TorSong");
         activateGoalSongData.put("mediaAction", "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_RESTART");
         activateGoalSongContent.put("requestData", activateGoalSongData);
         activateGoalSong.put("d", activateGoalSongContent);
@@ -310,23 +331,6 @@ public class App extends WebSocketClient {
             NameTeamBLabel.setText("");
         }
     }
-    public static void readConfigData() throws IOException{
-        try (InputStream is = new FileInputStream("src/config.json")) {
-            JSONTokener tokener = new JSONTokener(is);
-            configVariables = new JSONObject(tokener);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    public void writeConfigData(){
-        try (OutputStream os = new FileOutputStream("config.json")) {
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("matches", matchesArray);
-            os.write(jsonObject.toString(4).getBytes()); // Write with indentation
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     public static void main(String[] args) throws IOException{
         readConfigData();
@@ -335,6 +339,7 @@ public class App extends WebSocketClient {
         password = configVariables.getString("password");
         serverUri = "ws://" + ip + ":" + port;
         jsonFilePath = "src/" + configVariables.getString("matchespath");
+        goalSongPath = Paths.get("Torsongs").toAbsolutePath();
     
         try {
             App client = new App(new URI(serverUri), password);
@@ -383,7 +388,7 @@ public class App extends WebSocketClient {
 
                     if (client.isAuthenticated) {
                         client.setTextInputContent("ScoreTeamA", String.valueOf(ScoreTeamA));
-                        client.activateGoalSong(NameTeamA);
+                        client.setGoalSongInput(NameTeamA);
                     } else {
                         System.out.println("WebSocket is not authenticated yet.");
                     }
@@ -410,7 +415,7 @@ public class App extends WebSocketClient {
 
                     if (client.isAuthenticated) {
                         client.setTextInputContent("ScoreTeamB", String.valueOf(ScoreTeamB));
-                        client.activateGoalSong(NameTeamB);
+                        client.setGoalSongInput(NameTeamB);
                     } else {
                         System.out.println("WebSocket is not authenticated yet.");
                     }
@@ -611,7 +616,23 @@ public class App extends WebSocketClient {
         }
         
     }
-
+    public static void readConfigData() throws IOException{
+        try (InputStream is = new FileInputStream("src/config.json")) {
+            JSONTokener tokener = new JSONTokener(is);
+            configVariables = new JSONObject(tokener);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public void writeConfigData(){
+        try (OutputStream os = new FileOutputStream("config.json")) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("matches", matchesArray);
+            os.write(jsonObject.toString(4).getBytes()); // Write with indentation
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     public void startTimer(JLabel timerLabel, int minutes, int seconds) {
         if (timer != null) {
             timer.cancel();
