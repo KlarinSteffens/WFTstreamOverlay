@@ -18,7 +18,7 @@
         "home": "Bauarbeiter Mafia"
     },
     {
-        "away": "null",
+        "away": "Gurkentruppe",
         "id": "4",
         "title": "Gruppe B",
         "home": "Zilles Truppe"
@@ -57,7 +57,7 @@
         "away": "1. FC Goldbärchen",
         "id": "10",
         "title": "Gruppe B",
-        "home": "null"
+        "home": "Gurkentruppe"
     },
     {
         "away": "Kruschies Berkwerker",
@@ -90,7 +90,7 @@
         "home": "1. FC Goldbärchen"
     },
     {
-        "away": "null",
+        "away": "Gurkentruppe",
         "id": "16",
         "title": "Gruppe B",
         "home": "Bauarbeiter Mafia"

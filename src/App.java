@@ -23,11 +23,14 @@ public class App extends WebSocketClient {
 
 //////////////////////////////////////////////Variables\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     //websocketConnection
-    private String password;
+    //private String password;
     private String challenge;
     private String salt; 
     public int requestID = 0;
     private boolean isAuthenticated = false;
+    //config
+    public static String serverUri;
+    public static String password;
     ///////////////Scores&Names&timer
     public static int ScoreTeamA = 0;
     public static int ScoreTeamB = 0;
@@ -42,6 +45,7 @@ public class App extends WebSocketClient {
     public String replayPath = "";
     public String wasCurrentScene = "";
     public static JSONArray matchesArray;
+    public static JSONArray configVariables;
     public static String jsonFilePath;
     
     private List<JSONObject> matches = new ArrayList<>();
@@ -185,71 +189,6 @@ public class App extends WebSocketClient {
         //System.out.println("Sent request to update text input: " + inputName + " to new content: " + newTextContent);
     }
 
-    /*public void adjustScoreBoardWidth(String NameTeamA, String NameTeamB){
-       
-        double longestTeamName = 0;
-
-        if (NameTeamA.length() > NameTeamB.length()) {
-            longestTeamName = NameTeamA.length();
-        }
-        else{
-            longestTeamName = NameTeamB.length();
-        }
-
-        double newXscale = 1 + ((longestTeamName - 10) * 0.008);
-
-       
-        requestID++;
-        JSONObject adjustScoreBoardWidth = new JSONObject();
-        JSONObject adjustScoreBoardWidthContent = new JSONObject();
-        adjustScoreBoardWidthContent.put("requestType", "SetSceneItemTransform");
-        adjustScoreBoardWidthContent.put("requestId", requestID);
-
-        JSONObject adjustScoreBoardWidthData = new JSONObject();
-        adjustScoreBoardWidthData.put("sceneName", "Overlay");
-        adjustScoreBoardWidthData.put("sceneItemId", 16);
-
-        JSONObject adjustScoreBoardWidthTransform = new JSONObject();
-        adjustScoreBoardWidthTransform.put("scaleX", newXscale);
-        adjustScoreBoardWidthData.put("sceneItemTransform", adjustScoreBoardWidthTransform);
-
-        adjustScoreBoardWidthContent.put("requestData", adjustScoreBoardWidthData);
-        adjustScoreBoardWidth.put("d", adjustScoreBoardWidthContent);
-        adjustScoreBoardWidth.put("op", 6);
-
-        System.out.println(adjustScoreBoardWidth);
-
-        send(adjustScoreBoardWidth.toString());
-
-        client.adjustScoreBoardWidth(20, newXscale);
-        client.adjustScoreBoardWidth(20, newXscale);
-    }
-
-    public void adjustTeamNamePosition(int item, double newXscale){
-        requestID++;
-        JSONObject adjustTeamNamePosition = new JSONObject();
-        JSONObject adjustTeamNamePositionContent = new JSONObject();
-        adjustTeamNamePositionContent.put("requestType", "SetSceneItemTransform");
-        adjustTeamNamePositionContent.put("requestId", requestID);
-
-        JSONObject adjustTeamNamePositionData = new JSONObject();
-        adjustTeamNamePositionData.put("sceneName", "Overlay");
-        adjustTeamNamePositionData.put("sceneItemId", item);
-
-        double newPositionX = (((850 * newXscale) - 180));
-
-        JSONObject adjustTeamNamePositionTransform = new JSONObject();
-        adjustTeamNamePositionTransform.put("positionX", newPositionX);
-        adjustTeamNamePositionData.put("sceneItemTransform", adjustTeamNamePositionTransform);
-
-        adjustTeamNamePositionContent.put("requestData", adjustTeamNamePositionData);
-        adjustTeamNamePosition.put("d", adjustTeamNamePositionContent);
-        adjustTeamNamePosition.put("op", 6);
-
-        System.out.println(adjustTeamNamePosition);
-
-        send(adjustTeamNamePosition.toString());
-    }*/
     public void SaveReplayBuffer() {
         if (isAuthenticated) {
             requestID++;
@@ -371,14 +310,33 @@ public class App extends WebSocketClient {
             NameTeamBLabel.setText("");
         }
     }
+    public static void readConfigData() throws IOException{
+        try (InputStream is = new FileInputStream("conig.json")) {
+            JSONTokener tokener = new JSONTokener(is);
+            JSONObject jsonObject = new JSONObject(tokener);
+            configVariables = jsonObject.getJSONArray("configData");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public void writeConfigData(){
+        try (OutputStream os = new FileOutputStream("config.json")) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("matches", matchesArray);
+            os.write(jsonObject.toString(4).getBytes()); // Write with indentation
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException{
+        readConfigData();
         //String serverUri = "ws://192.168.25.167:4444";
         //String password = "JrXIqKD6qIeV5PNL";
         //String serverUri = "ws://192.168.2.4:4455";
         //String password = "WLJR7M2dFyfTK6DV";
-        String serverUri = "ws://localhost:4444";
-        String password = "JrXIqKD6qIeV5PNL";
+        //String serverUri = "ws://localhost:4444";
+        //String password = "JrXIqKD6qIeV5PNL";
         //String serverUri = "ws://localhost:4455";
         //String password = "oLJYZe7jziL25J0o";
         
