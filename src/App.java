@@ -45,7 +45,7 @@ public class App extends WebSocketClient {
     public String replayPath = "";
     public String wasCurrentScene = "";
     public static JSONArray matchesArray;
-    public static JSONArray configVariables;
+    public static JSONObject configVariables;
     public static String jsonFilePath;
     
     private List<JSONObject> matches = new ArrayList<>();
@@ -311,10 +311,9 @@ public class App extends WebSocketClient {
         }
     }
     public static void readConfigData() throws IOException{
-        try (InputStream is = new FileInputStream("conig.json")) {
+        try (InputStream is = new FileInputStream("src/config.json")) {
             JSONTokener tokener = new JSONTokener(is);
-            JSONObject jsonObject = new JSONObject(tokener);
-            configVariables = jsonObject.getJSONArray("configData");
+            configVariables = new JSONObject(tokener);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -331,300 +330,286 @@ public class App extends WebSocketClient {
 
     public static void main(String[] args) throws IOException{
         readConfigData();
-        //String serverUri = "ws://192.168.25.167:4444";
-        //String password = "JrXIqKD6qIeV5PNL";
-        //String serverUri = "ws://192.168.2.4:4455";
-        //String password = "WLJR7M2dFyfTK6DV";
-        //String serverUri = "ws://localhost:4444";
-        //String password = "JrXIqKD6qIeV5PNL";
-        //String serverUri = "ws://localhost:4455";
-        //String password = "oLJYZe7jziL25J0o";
-        
+        String ip = configVariables.getString("ipaddress");
+        String port = configVariables.getString("port");
+        password = configVariables.getString("password");
+        serverUri = "ws://" + ip + ":" + port;
+        jsonFilePath = "src/" + configVariables.getString("matchespath");
+    
         try {
-            // Use JFileChooser to prompt the user for the JSON file
-            JFileChooser fileChooser = new JFileChooser();
-            int result = fileChooser.showOpenDialog(null);
-            
-            if (result == JFileChooser.APPROVE_OPTION) {
-                File selectedFile = fileChooser.getSelectedFile();
-                jsonFilePath = selectedFile.getAbsolutePath();  // Get the full path of the selected file
+            App client = new App(new URI(serverUri), password);
+            client.connectBlocking();
 
-                App client = new App(new URI(serverUri), password);
-                client.connectBlocking();
+            // Load matches from JSON
+            client.loadMatches();
 
-                // Load matches from JSON
-                client.loadMatches();
+            JFrame frame = new JFrame("WFT_OBS_Manager");
+            frame.setSize(370, 590);
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setLayout(null); 
 
-                JFrame frame = new JFrame("WFT_OBS_Manager");
-                frame.setSize(370, 590);
-                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                frame.setLayout(null); 
-
-                JLabel NameTeamAlabel = new JLabel(NameTeamA, SwingConstants.CENTER);
-                JLabel NameTeamBLabel = new JLabel(NameTeamB, SwingConstants.CENTER);
-                JLabel ScoreAlabel = new JLabel(String.valueOf(ScoreTeamA), SwingConstants.CENTER);
-                JLabel ScoreBlabel = new JLabel(String.valueOf(ScoreTeamB), SwingConstants.CENTER);
-                JLabel timerLabel = new JLabel("00:00");  // Timer starts at 10:00
-                JButton increaseScoreAbutton = new JButton("+");
-                JButton decreaseScoreAbutton = new JButton("-");
-                JButton increaseScoreBbutton = new JButton("+");
-                JButton decreaseScoreBbutton = new JButton("-");
-                JButton triggerReplayButton = new JButton("Replay");
-                JTextField minutesInput = new JTextField("6", 2);
-                minutesInput.setColumns(20);
-                JTextField secondsInput = new JTextField("0", 2);
-                secondsInput.setColumns(20);
-                JTextField homeField = new JTextField(20);
-                homeField.setColumns(20);
-                JTextField awayField = new JTextField(20);
-                awayField.setColumns(20);
-                JButton saveButton = new JButton("Save");
-                JComboBox<String> matchDropdown = new JComboBox<>();
-                JButton startButton = new JButton("Start");
-                JButton pauseButton = new JButton("Pause");
-                JButton resetButton = new JButton("Reset");
-                for (int i = 0; i < matchesArray.length(); i++) {
-                    JSONObject match = matchesArray.getJSONObject(i);
-                    matchDropdown.addItem(match.getInt("id") + ": " + match.getString("title"));
-                }
-
-                increaseScoreAbutton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        ScoreTeamA += 1;
-                        ScoreAlabel.setText(String.valueOf(ScoreTeamA));
-    
-                        if (client.isAuthenticated) {
-                            client.setTextInputContent("ScoreTeamA", String.valueOf(ScoreTeamA));
-                            client.activateGoalSong(NameTeamA);
-                        } else {
-                            System.out.println("WebSocket is not authenticated yet.");
-                        }
-                    }
-                });
-                decreaseScoreAbutton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        if (ScoreTeamA > 0){
-                            ScoreTeamA -= 1;
-                        }
-                        ScoreAlabel.setText(String.valueOf(ScoreTeamA));
-    
-                        if (client.isAuthenticated) {
-                            client.setTextInputContent("ScoreTeamA", String.valueOf(ScoreTeamA));
-                        } else {
-                            System.out.println("WebSocket is not authenticated yet.");
-                        }
-                    }
-                });
-                increaseScoreBbutton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        ScoreTeamB += 1;
-                        ScoreBlabel.setText(String.valueOf(ScoreTeamB));
-    
-                        if (client.isAuthenticated) {
-                            client.setTextInputContent("ScoreTeamB", String.valueOf(ScoreTeamB));
-                            client.activateGoalSong(NameTeamB);
-                        } else {
-                            System.out.println("WebSocket is not authenticated yet.");
-                        }
-                    }
-                });
-                decreaseScoreBbutton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        if (ScoreTeamB > 0){
-                            ScoreTeamB -= 1;
-                        }
-                        
-                        ScoreBlabel.setText(String.valueOf(ScoreTeamB));
-    
-                        if (client.isAuthenticated) {
-                            client.setTextInputContent("ScoreTeamB", String.valueOf(ScoreTeamB));
-                        } else {
-                            System.out.println("WebSocket is not authenticated yet.");
-                        }
-                    }
-                });
-
-                triggerReplayButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e){
-                         if (client.isAuthenticated) {
-                            client.SaveReplayBuffer();
-                        } else {
-                            System.out.println("WebSocket is not authenticated yet.");
-                        }
-                    }
-                });
-    
-                startButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        if (!client.isTimerRunning) {
-                            try {
-                                int minutes = Integer.parseInt(minutesInput.getText());
-                                int seconds = Integer.parseInt(secondsInput.getText());
-                                client.startTimer(timerLabel, minutes, seconds);
-                                isPaused = false; // Reset paused state
-                                pauseButton.setText("Pause"); // Set button text to "Pause"
-                            } catch (NumberFormatException ex) {
-                                System.out.println("Invalid input for minutes or seconds");
-                            }
-                        }
-                    }
-                });
-                
-                pauseButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        if (client.isTimerRunning) {
-                            client.pauseTimer();
-                            isPaused = true; // Set paused state
-                            pauseButton.setText("Resume"); // Change button text to "Resume"
-                        } else if (isPaused) {
-                            client.resumeTimer(timerLabel); // Add this method to resume the timer
-                            isPaused = false; // Reset paused state
-                            pauseButton.setText("Pause"); // Change button text back to "Pause"
-                        }
-                    }
-                });
-                resetButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        try {
-                            int minutes = Integer.parseInt(minutesInput.getText());
-                            int seconds = Integer.parseInt(secondsInput.getText());
-                            client.resetTimer(timerLabel, minutes, seconds);
-                        } catch (NumberFormatException ex) {
-                            System.out.println("Invalid input for minutes or seconds");
-                        }
-                    }
-                });
-                matchDropdown.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        int selectedIndex = matchDropdown.getSelectedIndex();
-                        if (selectedIndex >= 0) {
-                            JSONObject selectedMatch = matchesArray.getJSONObject(selectedIndex);
-                            homeField.setText(selectedMatch.getString("home"));
-                            awayField.setText(selectedMatch.getString("away"));
-                        }
-                    }
-                });
-                saveButton.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        int selectedIndex = matchDropdown.getSelectedIndex();
-                        if (selectedIndex >= 0) {
-                            // Get the selected match
-                            JSONObject selectedMatch = matchesArray.getJSONObject(selectedIndex);
-        
-                            // Update the match data with new input values
-                            selectedMatch.put("away", awayField.getText());
-                            selectedMatch.put("home", homeField.getText());
-                            // Save updated JSON data back to the file
-                            saveJSONData();
-                            JOptionPane.showMessageDialog(frame, "Match updated successfully!");
-                        }
-                    }
-                });
-
-                JButton nextGameButton = new JButton("Next Game");
-                nextGameButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        client.updateMatchLabels(NameTeamAlabel, NameTeamBLabel, ScoreAlabel, ScoreBlabel);
-                        //client.adjustScoreBoardWidth(NameTeamA, NameTeamB);
-                        ScoreTeamA = 0;
-                        ScoreTeamB = 0;
-                        try {
-                            int minutes = Integer.parseInt(minutesInput.getText());
-                            int seconds = Integer.parseInt(secondsInput.getText());
-                            client.resetTimer(timerLabel, minutes, seconds);
-                        } catch (NumberFormatException ex) {
-                            System.out.println("Invalid input for minutes or seconds");
-                        }
-                        if (client.isAuthenticated) {
-                            client.setTextInputContent("NameTeamA", NameTeamA);
-                            client.setTextInputContent("NameTeamB", NameTeamB);
-                            client.setTextInputContent("NameTeamAnextup", NameTeamA);
-                            client.setTextInputContent("NameTeamBnextup", NameTeamB);
-                            client.setTextInputContent("ScoreTeamA", String.valueOf(ScoreTeamA));
-                            client.setTextInputContent("ScoreTeamB", String.valueOf(ScoreTeamB));
-                            client.setTextInputContent("MatchTitle", MatchTitle );
-                            client.setCurrentScene("Cam1Nextup");
-                        } else {
-                            System.out.println("WebSocket is not authenticated yet.");
-                        }
-                    }
-                });
-
-    
-                JPanel TimerPanel = new JPanel();
-                TimerPanel.setLayout(null);
-                TimerPanel.add(new JLabel(" Set Minutes:") {{setBounds(10, 10, 100, 30);}});
-                TimerPanel.add(minutesInput );
-                minutesInput.setBounds(120, 10, 100, 30);
-                TimerPanel.add(new JLabel(" Set Seconds:") {{setBounds(10, 50, 100, 30);}});
-                TimerPanel.add(secondsInput);
-                secondsInput.setBounds(120, 50, 100, 30);  
-                TimerPanel.add(timerLabel);
-                TimerPanel.add(new JLabel("Timer") {{setBounds(10, 90, 80, 30);}});
-                timerLabel.setBounds(120, 90, 80, 30); 
-                TimerPanel.add(startButton);
-                startButton.setBounds(10, 130, 70, 30);
-                TimerPanel.add(pauseButton);
-                pauseButton.setBounds(90, 130, 70, 30);
-                TimerPanel.add(resetButton);
-                resetButton.setBounds(170, 130, 70, 30);
-
-                JPanel ScorePanel = new JPanel();
-                ScorePanel.setLayout(null);
-                ScorePanel.add(increaseScoreAbutton);
-                increaseScoreAbutton.setBounds(120, 10, 50,30);
-                ScorePanel.add(ScoreAlabel);
-                ScoreAlabel.setBounds(120, 50, 50,30);
-                ScorePanel.add(decreaseScoreAbutton);
-                decreaseScoreAbutton.setBounds(120, 90, 50,30);
-                ScorePanel.add(increaseScoreBbutton);
-                increaseScoreBbutton.setBounds(180, 10, 50, 30);
-                ScorePanel.add(ScoreBlabel);
-                ScoreBlabel.setBounds(180, 50, 50, 30);
-                ScorePanel.add(decreaseScoreBbutton);
-                decreaseScoreBbutton.setBounds(180, 90, 50, 30);
-                ScorePanel.add(NameTeamAlabel);
-                NameTeamAlabel.setBounds(10, 50, 100, 30);
-                ScorePanel.add(NameTeamBLabel);
-                NameTeamBLabel.setBounds(220, 50, 100, 30);
-                ScorePanel.add(nextGameButton);
-                nextGameButton.setBounds(180, 130, 100, 30);
-                ScorePanel.add(triggerReplayButton);
-                triggerReplayButton.setBounds(70,130,100,30);
-
-                JPanel MatchManager = new JPanel();
-                MatchManager.setLayout(null);
-                MatchManager.add(new JLabel("Select Match:") {{setBounds(10, 10, 100, 30);}});
-                MatchManager.add(matchDropdown);
-                matchDropdown.setBounds(120, 10, 150, 30);
-                MatchManager.add(new JLabel("Home Team:") {{setBounds(10, 50, 100, 30);}});
-                MatchManager.add(homeField);
-                homeField.setBounds(120, 50, 150, 30);
-                MatchManager.add(new JLabel("Away Team:") {{setBounds(10, 90, 100, 30);}});
-                MatchManager.add(awayField);
-                awayField.setBounds(120, 90, 150, 30);
-                MatchManager.add(saveButton);
-                saveButton.setBounds(10, 130, 80, 30);
-
-                // Add all to the frame
-                frame.add(TimerPanel);
-                TimerPanel.setBounds(10, 10, 330, 170);
-                TimerPanel.setBackground(Color.gray);
-                frame.add(ScorePanel);
-                ScorePanel.setBounds(10,190,330, 170);
-                ScorePanel.setBackground(Color.gray);
-                frame.add(MatchManager);
-                MatchManager.setBounds(10, 370, 330, 170);
-                MatchManager.setBackground(Color.gray);
-                frame.setVisible(true);
-
-            } else {
-                System.out.println("No file selected");
+            JLabel NameTeamAlabel = new JLabel(NameTeamA, SwingConstants.CENTER);
+            JLabel NameTeamBLabel = new JLabel(NameTeamB, SwingConstants.CENTER);
+            JLabel ScoreAlabel = new JLabel(String.valueOf(ScoreTeamA), SwingConstants.CENTER);
+            JLabel ScoreBlabel = new JLabel(String.valueOf(ScoreTeamB), SwingConstants.CENTER);
+            JLabel timerLabel = new JLabel("00:00");  // Timer starts at 10:00
+            JButton increaseScoreAbutton = new JButton("+");
+            JButton decreaseScoreAbutton = new JButton("-");
+            JButton increaseScoreBbutton = new JButton("+");
+            JButton decreaseScoreBbutton = new JButton("-");
+            JButton triggerReplayButton = new JButton("Replay");
+            JTextField minutesInput = new JTextField("6", 2);
+            minutesInput.setColumns(20);
+            JTextField secondsInput = new JTextField("0", 2);
+            secondsInput.setColumns(20);
+            JTextField homeField = new JTextField(20);
+            homeField.setColumns(20);
+            JTextField awayField = new JTextField(20);
+            awayField.setColumns(20);
+            JButton saveButton = new JButton("Save");
+            JComboBox<String> matchDropdown = new JComboBox<>();
+            JButton startButton = new JButton("Start");
+            JButton pauseButton = new JButton("Pause");
+            JButton resetButton = new JButton("Reset");
+            for (int i = 0; i < matchesArray.length(); i++) {
+                JSONObject match = matchesArray.getJSONObject(i);
+                matchDropdown.addItem(match.getInt("id") + ": " + match.getString("title"));
             }
-        } catch (URISyntaxException | InterruptedException | IOException ex) {
+
+            increaseScoreAbutton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    ScoreTeamA += 1;
+                    ScoreAlabel.setText(String.valueOf(ScoreTeamA));
+
+                    if (client.isAuthenticated) {
+                        client.setTextInputContent("ScoreTeamA", String.valueOf(ScoreTeamA));
+                        client.activateGoalSong(NameTeamA);
+                    } else {
+                        System.out.println("WebSocket is not authenticated yet.");
+                    }
+                }
+            });
+            decreaseScoreAbutton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    if (ScoreTeamA > 0){
+                        ScoreTeamA -= 1;
+                    }
+                    ScoreAlabel.setText(String.valueOf(ScoreTeamA));
+
+                    if (client.isAuthenticated) {
+                        client.setTextInputContent("ScoreTeamA", String.valueOf(ScoreTeamA));
+                    } else {
+                        System.out.println("WebSocket is not authenticated yet.");
+                    }
+                }
+            });
+            increaseScoreBbutton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    ScoreTeamB += 1;
+                    ScoreBlabel.setText(String.valueOf(ScoreTeamB));
+
+                    if (client.isAuthenticated) {
+                        client.setTextInputContent("ScoreTeamB", String.valueOf(ScoreTeamB));
+                        client.activateGoalSong(NameTeamB);
+                    } else {
+                        System.out.println("WebSocket is not authenticated yet.");
+                    }
+                }
+            });
+            decreaseScoreBbutton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    if (ScoreTeamB > 0){
+                        ScoreTeamB -= 1;
+                    }
+                    
+                    ScoreBlabel.setText(String.valueOf(ScoreTeamB));
+
+                    if (client.isAuthenticated) {
+                        client.setTextInputContent("ScoreTeamB", String.valueOf(ScoreTeamB));
+                    } else {
+                        System.out.println("WebSocket is not authenticated yet.");
+                    }
+                }
+            });
+
+            triggerReplayButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e){
+                        if (client.isAuthenticated) {
+                        client.SaveReplayBuffer();
+                    } else {
+                        System.out.println("WebSocket is not authenticated yet.");
+                    }
+                }
+            });
+
+            startButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    if (!client.isTimerRunning) {
+                        try {
+                            int minutes = Integer.parseInt(minutesInput.getText());
+                            int seconds = Integer.parseInt(secondsInput.getText());
+                            client.startTimer(timerLabel, minutes, seconds);
+                            isPaused = false; // Reset paused state
+                            pauseButton.setText("Pause"); // Set button text to "Pause"
+                        } catch (NumberFormatException ex) {
+                            System.out.println("Invalid input for minutes or seconds");
+                        }
+                    }
+                }
+            });
+            
+            pauseButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    if (client.isTimerRunning) {
+                        client.pauseTimer();
+                        isPaused = true; // Set paused state
+                        pauseButton.setText("Resume"); // Change button text to "Resume"
+                    } else if (isPaused) {
+                        client.resumeTimer(timerLabel); // Add this method to resume the timer
+                        isPaused = false; // Reset paused state
+                        pauseButton.setText("Pause"); // Change button text back to "Pause"
+                    }
+                }
+            });
+            resetButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    try {
+                        int minutes = Integer.parseInt(minutesInput.getText());
+                        int seconds = Integer.parseInt(secondsInput.getText());
+                        client.resetTimer(timerLabel, minutes, seconds);
+                    } catch (NumberFormatException ex) {
+                        System.out.println("Invalid input for minutes or seconds");
+                    }
+                }
+            });
+            matchDropdown.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    int selectedIndex = matchDropdown.getSelectedIndex();
+                    if (selectedIndex >= 0) {
+                        JSONObject selectedMatch = matchesArray.getJSONObject(selectedIndex);
+                        homeField.setText(selectedMatch.getString("home"));
+                        awayField.setText(selectedMatch.getString("away"));
+                    }
+                }
+            });
+            saveButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    int selectedIndex = matchDropdown.getSelectedIndex();
+                    if (selectedIndex >= 0) {
+                        // Get the selected match
+                        JSONObject selectedMatch = matchesArray.getJSONObject(selectedIndex);
+
+                        // Update the match data with new input values
+                        selectedMatch.put("away", awayField.getText());
+                        selectedMatch.put("home", homeField.getText());
+                        // Save updated JSON data back to the file
+                        saveJSONData();
+                        JOptionPane.showMessageDialog(frame, "Match updated successfully!");
+                    }
+                }
+            });
+
+            JButton nextGameButton = new JButton("Next Game");
+            nextGameButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    client.updateMatchLabels(NameTeamAlabel, NameTeamBLabel, ScoreAlabel, ScoreBlabel);
+                    //client.adjustScoreBoardWidth(NameTeamA, NameTeamB);
+                    ScoreTeamA = 0;
+                    ScoreTeamB = 0;
+                    try {
+                        int minutes = Integer.parseInt(minutesInput.getText());
+                        int seconds = Integer.parseInt(secondsInput.getText());
+                        client.resetTimer(timerLabel, minutes, seconds);
+                    } catch (NumberFormatException ex) {
+                        System.out.println("Invalid input for minutes or seconds");
+                    }
+                    if (client.isAuthenticated) {
+                        client.setTextInputContent("NameTeamA", NameTeamA);
+                        client.setTextInputContent("NameTeamB", NameTeamB);
+                        client.setTextInputContent("NameTeamAnextup", NameTeamA);
+                        client.setTextInputContent("NameTeamBnextup", NameTeamB);
+                        client.setTextInputContent("ScoreTeamA", String.valueOf(ScoreTeamA));
+                        client.setTextInputContent("ScoreTeamB", String.valueOf(ScoreTeamB));
+                        client.setTextInputContent("MatchTitle", MatchTitle );
+                        client.setCurrentScene("Cam1Nextup");
+                    } else {
+                        System.out.println("WebSocket is not authenticated yet.");
+                    }
+                }
+            });
+
+
+            JPanel TimerPanel = new JPanel();
+            TimerPanel.setLayout(null);
+            TimerPanel.add(new JLabel(" Set Minutes:") {{setBounds(10, 10, 100, 30);}});
+            TimerPanel.add(minutesInput );
+            minutesInput.setBounds(120, 10, 100, 30);
+            TimerPanel.add(new JLabel(" Set Seconds:") {{setBounds(10, 50, 100, 30);}});
+            TimerPanel.add(secondsInput);
+            secondsInput.setBounds(120, 50, 100, 30);  
+            TimerPanel.add(timerLabel);
+            TimerPanel.add(new JLabel("Timer") {{setBounds(10, 90, 80, 30);}});
+            timerLabel.setBounds(120, 90, 80, 30); 
+            TimerPanel.add(startButton);
+            startButton.setBounds(10, 130, 70, 30);
+            TimerPanel.add(pauseButton);
+            pauseButton.setBounds(90, 130, 70, 30);
+            TimerPanel.add(resetButton);
+            resetButton.setBounds(170, 130, 70, 30);
+
+            JPanel ScorePanel = new JPanel();
+            ScorePanel.setLayout(null);
+            ScorePanel.add(increaseScoreAbutton);
+            increaseScoreAbutton.setBounds(120, 10, 50,30);
+            ScorePanel.add(ScoreAlabel);
+            ScoreAlabel.setBounds(120, 50, 50,30);
+            ScorePanel.add(decreaseScoreAbutton);
+            decreaseScoreAbutton.setBounds(120, 90, 50,30);
+            ScorePanel.add(increaseScoreBbutton);
+            increaseScoreBbutton.setBounds(180, 10, 50, 30);
+            ScorePanel.add(ScoreBlabel);
+            ScoreBlabel.setBounds(180, 50, 50, 30);
+            ScorePanel.add(decreaseScoreBbutton);
+            decreaseScoreBbutton.setBounds(180, 90, 50, 30);
+            ScorePanel.add(NameTeamAlabel);
+            NameTeamAlabel.setBounds(10, 50, 100, 30);
+            ScorePanel.add(NameTeamBLabel);
+            NameTeamBLabel.setBounds(220, 50, 100, 30);
+            ScorePanel.add(nextGameButton);
+            nextGameButton.setBounds(180, 130, 100, 30);
+            ScorePanel.add(triggerReplayButton);
+            triggerReplayButton.setBounds(70,130,100,30);
+
+            JPanel MatchManager = new JPanel();
+            MatchManager.setLayout(null);
+            MatchManager.add(new JLabel("Select Match:") {{setBounds(10, 10, 100, 30);}});
+            MatchManager.add(matchDropdown);
+            matchDropdown.setBounds(120, 10, 150, 30);
+            MatchManager.add(new JLabel("Home Team:") {{setBounds(10, 50, 100, 30);}});
+            MatchManager.add(homeField);
+            homeField.setBounds(120, 50, 150, 30);
+            MatchManager.add(new JLabel("Away Team:") {{setBounds(10, 90, 100, 30);}});
+            MatchManager.add(awayField);
+            awayField.setBounds(120, 90, 150, 30);
+            MatchManager.add(saveButton);
+            saveButton.setBounds(10, 130, 80, 30);
+
+            // Add all to the frame
+            frame.add(TimerPanel);
+            TimerPanel.setBounds(10, 10, 330, 170);
+            TimerPanel.setBackground(Color.gray);
+            frame.add(ScorePanel);
+            ScorePanel.setBounds(10,190,330, 170);
+            ScorePanel.setBackground(Color.gray);
+            frame.add(MatchManager);
+            MatchManager.setBounds(10, 370, 330, 170);
+            MatchManager.setBackground(Color.gray);
+            frame.setVisible(true);
+        }catch (URISyntaxException | InterruptedException | IOException ex) {
             ex.printStackTrace();
         }
+        
     }
 
     public void startTimer(JLabel timerLabel, int minutes, int seconds) {
