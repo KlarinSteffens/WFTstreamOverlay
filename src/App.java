@@ -6,8 +6,8 @@ import org.json.JSONArray;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+//import java.nio.file.Path;
+//import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.util.Base64;
 import java.util.Timer;
@@ -33,7 +33,7 @@ public class App extends WebSocketClient {
     //config
     public static String serverUri;
     public static String password;
-    public static Path goalSongPath;
+    public static String goalSongPath;
     ///////////////Scores&Names&timer
     public static int ScoreTeamA = 0;
     public static int ScoreTeamB = 0;
@@ -276,7 +276,6 @@ public class App extends WebSocketClient {
         setGoalSongData.put("inputSettings",setGoalSongDataSettings);
         setGoalSongContent.put("requestData", setGoalSongData);
         setGoalSong.put("d", setGoalSongContent);
-
         send(setGoalSong.toString());
         System.out.println(setGoalSong.toString());
         activateGoalSong();
@@ -339,7 +338,7 @@ public class App extends WebSocketClient {
         password = configVariables.getString("password");
         serverUri = "ws://" + ip + ":" + port;
         jsonFilePath = "src/" + configVariables.getString("matchespath");
-        goalSongPath = Paths.get("Torsongs").toAbsolutePath();
+        goalSongPath = configVariables.getString("goalsongspath");
     
         try {
             App client = new App(new URI(serverUri), password);
