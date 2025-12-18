@@ -2,6 +2,4 @@
 "port": "4444",
 "password":"oLJYZe7jziL25J0o",
 "matchespath": "matchesDayOne.json",
-"goalsongspath":"",
-"ip addresse vom OBS-WebsocketServer, port vom OBS-WebsocketServer, password vom OBS-WebSocketServer, der name der Matches.json, absoluter Pfad des Torsongs ORDNERS auf dem OBS-Rechner":""
-}
+"goalsongspath":"test"}
