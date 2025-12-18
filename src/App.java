@@ -279,7 +279,7 @@ public class App extends WebSocketClient {
         send(setGoalSong.toString());
         System.out.println(setGoalSong.toString());
         activateGoalSong();
-    }//
+    }
     public void activateGoalSong(){
         requestID++;
         JSONObject activateGoalSong = new JSONObject();
