@@ -272,14 +272,14 @@ public class App extends WebSocketClient {
         JSONObject setGoalSongData = new JSONObject();
         setGoalSongData.put("inputName", "TorSong");
         JSONObject setGoalSongDataSettings = new JSONObject();
-        setGoalSongDataSettings.put("local_file", goalSongPath + "\\" + scoreGainedTeam + ".mp3");
+        setGoalSongDataSettings.put("local_file", goalSongPath + "/" + scoreGainedTeam + ".mp3");
         setGoalSongData.put("inputSettings",setGoalSongDataSettings);
         setGoalSongContent.put("requestData", setGoalSongData);
         setGoalSong.put("d", setGoalSongContent);
         send(setGoalSong.toString());
         System.out.println(setGoalSong.toString());
         activateGoalSong();
-    }
+    }//
     public void activateGoalSong(){
         requestID++;
         JSONObject activateGoalSong = new JSONObject();
