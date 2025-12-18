@@ -21,9 +21,11 @@ import org.json.JSONTokener;
 import java.awt.event.*;
 import java.io.*;
 
+import javazoom.jl.decoder.JavaLayerException;
+import javazoom.jl.player.Player;
 public class App extends WebSocketClient {
 
-//////////////////////////////////////////////Variables\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+//////////////////////////////////////////////Variables\\\\\\\\\\\\\\\\\\\\\\\
     //websocketConnection
     //private String password;
     private String challenge;
@@ -32,6 +34,8 @@ public class App extends WebSocketClient {
     private boolean isAuthenticated = false;
     //config
     public static String serverUri;
+    public static String ip;
+    public static String port;
     public static String password;
     public static String goalSongPath;
     ///////////////Scores&Names&timer
@@ -46,7 +50,10 @@ public class App extends WebSocketClient {
     public static String NameTeamB = "TeamB";
     //////////////OBS_Scenes&Sources
     public String replayPath = "";
-    public String wasCurrentScene = "";
+    public String currentScene = "";
+    public String previousScene = "";
+    public Boolean changeSceneBack = false;
+    public Boolean songPlaying = false;
     public static JSONArray matchesArray;
     public static JSONObject configVariables;
     public static String jsonFilePath;
@@ -55,7 +62,7 @@ public class App extends WebSocketClient {
     private int currentMatchIndex = 0;
     public static String MatchTitle = "";
 
-//////////////////////////////////////////////Websocket initializing\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+//////////////////////////////////////////////Websocket initializing\\\\\\\\\\\\\\\\\\\\\\\
 
     public App(URI serverUri, String password) {
         super(serverUri);
@@ -70,11 +77,19 @@ public class App extends WebSocketClient {
     @Override
     public void onMessage(String message) {
         JSONObject json = new JSONObject(message);
+        System.out.println(message);
 
-        if (json.getInt("op") != 5) {
+        /*if (json.getInt("op") != 5) {
             System.out.println("Received message: " + message);
-        }
+        }*/
 
+        if (json.has("op") && json.getInt("op") == 5 && json.getJSONObject("d").has("eventType") && json.getJSONObject("d").getJSONObject("eventData").has("sceneName")) {
+            System.out.println("has eventype and scenename");
+            if (json.getJSONObject("d").getString("eventType").equals("CurrentProgramSceneChanged") && !json.getJSONObject("d").getJSONObject("eventData").getString("sceneName").equals("ReplayScene")) {
+                changeSceneBack = false;
+                System.out.println(changeSceneBack);
+            }
+        }
         if (json.has("op") && json.getInt("op") == 0) {
             JSONObject authData = json.getJSONObject("d").getJSONObject("authentication");
             this.challenge = authData.getString("challenge");
@@ -86,7 +101,7 @@ public class App extends WebSocketClient {
         if (json.has("op") && json.getInt("op") == 2) {
             handleAuthenticationResponse(json);
         }
-//////////////////////////////////////////////handle custom websocket recieving\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+//////////////////////////////////////////////handle custom websocket recieving\\\\\\\\\\\\\\\\\\\\\\\
         if (json.has("d")){
             JSONObject jsonD = json.getJSONObject("d");
             if (jsonD.has("eventData")) {
@@ -99,14 +114,16 @@ public class App extends WebSocketClient {
             else if(jsonD.has("requestType")){
                 if (jsonD.getString("requestType").equals("GetCurrentProgramScene")) {
                     if (jsonD.has("responseData")){
-                        wasCurrentScene = jsonD.getJSONObject("responseData").getString("currentProgramSceneName");
+                        currentScene = jsonD.getJSONObject("responseData").getString("currentProgramSceneName");
                     }
                 }
             }
             if (jsonD.has("eventType")) {
                 if(jsonD.getString("eventType").equals("MediaInputPlaybackEnded")){
-                    System.out.println(wasCurrentScene);
-                    setCurrentScene(wasCurrentScene);
+                    if(changeSceneBack == true){
+                        setCurrentScene(currentScene);
+                        changeSceneBack = false;
+                    }
                 }
             }
         }
@@ -167,7 +184,7 @@ public class App extends WebSocketClient {
         }
     }
 
-//////////////////////////////////////////////send Websocketrequests\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+//////////////////////////////////////////////send Websocketrequests\\\\\\\\\\\\\\\\\\\\\\\
     public void setTextInputContent(String inputName, String newTextContent) {
         requestID++;
         JSONObject request = new JSONObject();
@@ -229,6 +246,8 @@ public class App extends WebSocketClient {
 
             send(setReplaySceneRequest.toString());
             System.out.println(setReplaySceneRequest.toString());
+            changeSceneBack = true;
+            System.out.println(changeSceneBack);
         }
         else {
             System.out.println("WebSocket is not authenticated yet.");
@@ -262,44 +281,21 @@ public class App extends WebSocketClient {
         send(setCurrentScene.toString());
         System.out.println(setCurrentScene.toString());
     }
-    public void playGoalSong(String scoreGainedTeam){
+    public void playGoalSong(String scoreGainedTeam) throws JavaLayerException, FileNotFoundException{
+        if (songPlaying) return;
 
+        new Thread(() -> {
+            songPlaying = true;
+            try (FileInputStream fis = new FileInputStream("Torsongs/" + scoreGainedTeam + ".mp3")) {
+                Player player = new Player(fis);
+                player.play();
+            } catch (JavaLayerException| IOException e ) {
+                e.printStackTrace();
+            }finally {
+                songPlaying = false;
+            }
+        }).start();
     }
-    /*public void setGoalSongInput(String scoreGainedTeam){
-        requestID++;
-        JSONObject setGoalSong = new JSONObject();
-        setGoalSong.put("op", 6);
-        JSONObject setGoalSongContent = new JSONObject();
-        setGoalSongContent.put("requestType", "SetInputSettings");
-        setGoalSongContent.put("requestId", requestID);
-        JSONObject setGoalSongData = new JSONObject();
-        setGoalSongData.put("inputName", "TorSong");
-        JSONObject setGoalSongDataSettings = new JSONObject();
-        setGoalSongDataSettings.put("local_file", goalSongPath + "/" + scoreGainedTeam + ".mp3");
-        setGoalSongData.put("inputSettings",setGoalSongDataSettings);
-        setGoalSongContent.put("requestData", setGoalSongData);
-        setGoalSong.put("d", setGoalSongContent);
-        send(setGoalSong.toString());
-        System.out.println(setGoalSong.toString());
-        activateGoalSong();
-    }
-    public void activateGoalSong(){
-        requestID++;
-        JSONObject activateGoalSong = new JSONObject();
-        activateGoalSong.put("op", 6);
-        JSONObject activateGoalSongContent = new JSONObject();
-        activateGoalSongContent.put("requestType", "TriggerMediaInputAction");
-        activateGoalSongContent.put("requestId", requestID);
-        JSONObject activateGoalSongData = new JSONObject();
-        activateGoalSongData.put("inputName", "TorSong");
-        activateGoalSongData.put("mediaAction", "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_RESTART");
-        activateGoalSongContent.put("requestData", activateGoalSongData);
-        activateGoalSong.put("d", activateGoalSongContent);
-
-        send(activateGoalSong.toString());
-        System.out.println(activateGoalSong.toString());
-    }*/
-    
     private void loadMatches() throws IOException {
         try (InputStream is = new FileInputStream(jsonFilePath)) {
             JSONTokener tokener = new JSONTokener(is);
@@ -335,60 +331,53 @@ public class App extends WebSocketClient {
     }
 
     public static void main(String[] args) throws IOException{
+//////////////////////////////////////////////Config Paramters\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\        
         readConfigData();
+        JDialog config = new JDialog((Frame) null, "Configuration", true);
+        config.setSize(400, 300);
+        config.setLayout(new GridLayout(6, 2, 5, 5));
+        config.setLocationRelativeTo(null);
 
-        JFrame config = new JFrame("Connectionparamter Config");
-        config.setSize(400,400);
-        config.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        JLabel ipAddressLabel = new JLabel();
-        JLabel portLabel = new JLabel();
-        JLabel passwordLabel = new JLabel();
-        JLabel matchesPathLabel = new JLabel();
-        JLabel goalSongPathLabel = new JLabel();
-        JTextField ipAddressInput = new JTextField(configVariables.getString("ipaddress"), 50);
-        //ipAddressInput.setColumns(20);
-        JTextField portInput = new JTextField(configVariables.getString("port"), 50);
-        //portInput.setColumns(20);
-        JTextField passwordInput = new JTextField(configVariables.getString("password"), 50);
-        //passwordInput.setColumns(20);
-        JTextField matchesPathInput = new JTextField(configVariables.getString("matchespath"), 50);
-        //matchesPathInput.setColumns(20);
-        JTextField goalSongInput = new JTextField(configVariables.getString("goalsongspath"), 50);
-        //goalSongInput.setColumns(20);
+        JLabel ipAddressLabel = new JLabel("IP-Addresse des OBS-Ziels");
+        JLabel portLabel = new JLabel("Port des OBS-Websocketservers");
+        JLabel passwordLabel = new JLabel("OBS-Websocketserver Passwort");
+        JLabel matchesPathLabel = new JLabel("Name der zu verwendenden matches.json");
+        JTextField ipAddressInput = new JTextField(ip, 50);
+        JTextField portInput = new JTextField(port, 50);
+        JTextField passwordInput = new JTextField(password, 50);
+        JTextField matchesPathInput = new JTextField(jsonFilePath.replace("src/",""), 50);
         JButton saveLoadButton = new JButton("save current values & load config");
-        saveLoadButton.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent a){
-                writeConfigData(ipAddressInput.getText(), portInput.getText(), passwordInput.getText(), matchesPathInput.getText(), goalSongInput.getText());
-                try {
-                    readConfigData();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                String ip = configVariables.getString("ipaddress");
-                String port = configVariables.getString("port");
-                password = configVariables.getString("password");
-                serverUri = "ws://" + ip + ":" + port;
-                jsonFilePath = "src/" + configVariables.getString("matchespath");
-                goalSongPath = configVariables.getString("goalsongspath");
-            }
-        });
+
         config.add(ipAddressLabel);
-        ipAddressLabel.setBounds(10,10,100,30);
         config.add(ipAddressInput);
-        ipAddressInput.setBounds(110,10,100,30);
         config.add(portLabel);
         config.add(portInput);
         config.add(passwordLabel);
         config.add(passwordInput);
         config.add(matchesPathLabel);
         config.add(matchesPathInput);
-        config.add(goalSongPathLabel);
-        config.add(goalSongInput);
         config.add(saveLoadButton);
 
+        saveLoadButton.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent a){
+                writeConfigData(ipAddressInput.getText(), portInput.getText(), passwordInput.getText(), matchesPathInput.getText());
+                try {
+                    readConfigData();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    readConfigData();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                config.dispose();
+            }
+        });
+        config.setVisible(true);
 
+//////////////////////////////////////////////Actual App\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
-    
         try {
             App client = new App(new URI(serverUri), password);
             client.connectBlocking();
@@ -411,6 +400,7 @@ public class App extends WebSocketClient {
             JButton increaseScoreBbutton = new JButton("+");
             JButton decreaseScoreBbutton = new JButton("-");
             JButton triggerReplayButton = new JButton("Replay");
+            JButton nextGameButton = new JButton("Next Game");
             JTextField minutesInput = new JTextField("6", 2);
             minutesInput.setColumns(20);
             JTextField secondsInput = new JTextField("0", 2);
@@ -421,9 +411,13 @@ public class App extends WebSocketClient {
             awayField.setColumns(20);
             JButton saveButton = new JButton("Save");
             JComboBox<String> matchDropdown = new JComboBox<>();
+            //JButton sub15 = new JButton("-15");
+            JButton sub5 = new JButton("-5");
             JButton startButton = new JButton("Start");
             JButton pauseButton = new JButton("Pause");
             JButton resetButton = new JButton("Reset");
+            JButton add5 = new JButton("+5");
+            //JButton add15 = new JButton("+15");
             for (int i = 0; i < matchesArray.length(); i++) {
                 JSONObject match = matchesArray.getJSONObject(i);
                 matchDropdown.addItem(match.getInt("id") + ": " + match.getString("title"));
@@ -433,13 +427,15 @@ public class App extends WebSocketClient {
                 public void actionPerformed(ActionEvent e) {
                     ScoreTeamA += 1;
                     ScoreALabel.setText(String.valueOf(ScoreTeamA));
-
                     if (client.isAuthenticated) {
                         client.setTextInputContent("ScoreTeamA", String.valueOf(ScoreTeamA));
-                        //client.setGoalSongInput(NameTeamA);
-                        client.playGoalSong(NameTeamA);
                     } else {
                         System.out.println("WebSocket is not authenticated yet.");
+                    }
+                    try {
+                        client.playGoalSong(NameTeamA);
+                    } catch (FileNotFoundException | JavaLayerException e1) {
+                        e1.printStackTrace();
                     }
                 }
             });
@@ -464,8 +460,11 @@ public class App extends WebSocketClient {
 
                     if (client.isAuthenticated) {
                         client.setTextInputContent("ScoreTeamB", String.valueOf(ScoreTeamB));
-                        //client.setGoalSongInput(NameTeamB);
-                        client.playGoalSong(NameTeamB);
+                        try {
+                            client.playGoalSong(NameTeamB);
+                        } catch (FileNotFoundException | JavaLayerException e1) {
+                            e1.printStackTrace();
+                        }
                     } else {
                         System.out.println("WebSocket is not authenticated yet.");
                     }
@@ -537,6 +536,16 @@ public class App extends WebSocketClient {
                     }
                 }
             });
+            sub5.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    client.adjustTimer(timerLabel, -5);
+                }
+            });
+            add5.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    client.adjustTimer(timerLabel, 5);
+                }
+            });
             matchDropdown.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     int selectedIndex = matchDropdown.getSelectedIndex();
@@ -564,8 +573,6 @@ public class App extends WebSocketClient {
                     }
                 }
             });
-
-            JButton nextGameButton = new JButton("Next Game");
             nextGameButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     client.updateMatchLabels(NameTeamALabel, NameTeamBLabel, ScoreALabel, ScoreBLabel);
@@ -593,6 +600,7 @@ public class App extends WebSocketClient {
                     }
                 }
             });
+            
 
 
             JPanel TimerPanel = new JPanel();
@@ -606,12 +614,20 @@ public class App extends WebSocketClient {
             TimerPanel.add(timerLabel);
             TimerPanel.add(new JLabel("Timer") {{setBounds(10, 90, 80, 30);}});
             timerLabel.setBounds(120, 90, 80, 30); 
+            /*TimerPanel.add(sub15);
+            sub15.setBounds(10,130,30,30);*/
+            TimerPanel.add(sub5);
+            sub5.setBounds(10,130,30,30);
             TimerPanel.add(startButton);
-            startButton.setBounds(10, 130, 70, 30);
+            startButton.setBounds(50, 130, 70, 30);
             TimerPanel.add(pauseButton);
-            pauseButton.setBounds(90, 130, 70, 30);
+            pauseButton.setBounds(130, 130, 70, 30);
             TimerPanel.add(resetButton);
-            resetButton.setBounds(170, 130, 70, 30);
+            resetButton.setBounds(210, 130, 70, 30);
+            TimerPanel.add(add5);
+            add5.setBounds(290,130,30,30);
+            /*TimerPanel.add(add15);
+            add15.setBounds(380,130,30,30);*/
 
             JPanel ScorePanel = new JPanel();
             ScorePanel.setLayout(null);
@@ -670,18 +686,23 @@ public class App extends WebSocketClient {
         try (InputStream is = new FileInputStream("src/config.json")) {
             JSONTokener tokener = new JSONTokener(is);
             configVariables = new JSONObject(tokener);
+            ip = configVariables.getString("ipaddress");
+            port = configVariables.getString("port");
+            password = configVariables.getString("password");
+            serverUri = "ws://" + ip + ":" + port;
+            jsonFilePath = "src/" + configVariables.getString("matchespath");
+            
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    public static void writeConfigData(String ipaddress, String port, String password, String matchesFilePath, String goalsongFilePath){
+    public static void writeConfigData(String ipaddress, String port, String password, String matchesFilePath){
         try (OutputStream os = new FileOutputStream("src/config.json")) {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("ipaddress", ipaddress);
             jsonObject.put("port", port);
             jsonObject.put("password", password);
             jsonObject.put("matchespath", matchesFilePath);
-            jsonObject.put("goalsongpath", goalsongFilePath);
             os.write(jsonObject.toString(4).getBytes()); // Write with indentation
         } catch (Exception e) {
             e.printStackTrace();
@@ -761,6 +782,22 @@ public class App extends WebSocketClient {
             }
         }, 0, 1000);
     }
+    public void adjustTimer(JLabel timerLabel, int secondsToAdjust) {
+    remainingTime += secondsToAdjust;
+
+    if (remainingTime < 0) {
+        remainingTime = 0;
+    }
+
+    int minutes = remainingTime / 60;
+    int seconds = remainingTime % 60;
+
+    timerLabel.setText(String.format("%02d:%02d", minutes, seconds));
+
+    if (isAuthenticated) {
+        setTextInputContent("Timer", String.format("%02d:%02d", minutes, seconds));
+    }
+}
     private static void saveJSONData() {
         try (OutputStream os = new FileOutputStream(jsonFilePath)) {
             JSONObject jsonObject = new JSONObject();

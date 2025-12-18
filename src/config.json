@@ -1,5 +1,6 @@
-{"ipaddress": "localhost",
-"port": "4444",
-"password":"oLJYZe7jziL25J0o",
-"matchespath": "matchesDayOne.json",
-"goalsongspath":"test"}
+{
+    "ipaddress": "localhost",
+    "password": "JrXIqKD6qIeV5PNL",
+    "port": "4444",
+    "matchespath": "matchesDayOne.json"
+}
