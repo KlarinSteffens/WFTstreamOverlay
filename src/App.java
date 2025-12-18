@@ -77,11 +77,10 @@ public class App extends WebSocketClient {
     @Override
     public void onMessage(String message) {
         JSONObject json = new JSONObject(message);
-        System.out.println(message);
 
-        /*if (json.getInt("op") != 5) {
+        if (json.getInt("op") != 5) {
             System.out.println("Received message: " + message);
-        }*/
+        }
 
         if (json.has("op") && json.getInt("op") == 5 && json.getJSONObject("d").has("eventType") && json.getJSONObject("d").getJSONObject("eventData").has("sceneName")) {
             System.out.println("has eventype and scenename");
