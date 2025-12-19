@@ -425,13 +425,13 @@ public class App extends WebSocketClient {
                 scoreTeamALabelArray[i] = new JLabel();
                 scoreTeamBLabelArray[i] = new JLabel();
                 teamBLabelArray[i] = new JLabel();
-                activeButton[i] = new JButton("make active match");
+                activeButton[i] = new JButton("activate");
                 activeButton[i].addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e){
                             if(currentMatchIndex>0){
                                 saveGameResult();
                                 activeButton[currentMatchIndex-1].setBackground(Color.white);
-                                activeButton[currentMatchIndex-1].setText("make active match");
+                                activeButton[currentMatchIndex-1].setText("activate");
                             }
                             try {
                                 loadMatchesToList(matchIndexLabel, matchTitelLabel, teamALabelArray, scoreTeamALabelArray, scoreTeamBLabelArray , teamBLabelArray, currentMatchIndex-1);
@@ -611,7 +611,7 @@ public class App extends WebSocketClient {
                         if(!wasMakeActiveButton){
                             saveGameResult();
                             activeButton[currentMatchIndex-1].setBackground(Color.white);
-                            activeButton[currentMatchIndex-1].setText("make active Match");
+                            activeButton[currentMatchIndex-1].setText("activate");
                             try {
                                 loadMatchesToList(matchIndexLabel,matchTitelLabel,teamALabelArray,scoreTeamALabelArray,scoreTeamBLabelArray,teamBLabelArray,currentMatchIndex-1);
                             } catch (IOException e1) {
@@ -621,7 +621,7 @@ public class App extends WebSocketClient {
                         wasMakeActiveButton = false;
                     }
                     activeButton[currentMatchIndex].setBackground(Color.cyan);
-                    activeButton[currentMatchIndex].setText("is active Match");
+                    activeButton[currentMatchIndex].setText("current");
                     client.updateMatchLabels(NameTeamALabel, NameTeamBLabel, ScoreALabel, ScoreBLabel);
                     System.out.println(currentMatchIndex);
                     //client.adjustScoreBoardWidth(NameTeamA, NameTeamB);

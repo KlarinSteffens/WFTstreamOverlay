@@ -228,7 +228,7 @@
         "away": "2. Gruppe B",
         "id": "29",
         "scoreAway": 0,
-        "title": "Viertelfinal",
+        "title": "Viertelfinal 1",
         "home": "1. Gruppe A"
     },
     {
@@ -236,7 +236,7 @@
         "away": "2. Gruppe D",
         "id": "30",
         "scoreAway": 0,
-        "title": "Viertelfinal",
+        "title": "Viertelfinal 2",
         "home": "1. Gruppe C"
     },
     {
@@ -244,7 +244,7 @@
         "away": "1. Gruppe B",
         "id": "31",
         "scoreAway": 0,
-        "title": "Viertelfinal",
+        "title": "Viertelfinal 3",
         "home": "2. Gruppe A"
     },
     {
@@ -252,7 +252,7 @@
         "away": "1. Gruppe D",
         "id": "32",
         "scoreAway": 0,
-        "title": "Viertelfinal",
+        "title": "Viertelfinal 4",
         "home": "2. Gruppe C"
     },
     {
@@ -260,7 +260,7 @@
         "away": "Gewinner VF2",
         "id": "33",
         "scoreAway": 0,
-        "title": "Halbfinale",
+        "title": "Halbfinale 1",
         "home": "Gewinner VF1"
     },
     {
@@ -268,7 +268,7 @@
         "away": "Gewinner VF4",
         "id": "34",
         "scoreAway": 0,
-        "title": "Halbfinale",
+        "title": "Halbfinale 2",
         "home": "Gewinner VF3"
     },
     {
