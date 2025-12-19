@@ -58,8 +58,8 @@ public class App extends WebSocketClient {
     public static JSONObject configVariables;
     public static String jsonFilePath;
     
-    private List<JSONObject> matches = new ArrayList<>();
-    private int currentMatchIndex = 0;
+    public List<JSONObject> matches = new ArrayList<>();
+    public static int currentMatchIndex = 0;
     public static String MatchTitle = "";
 
 //////////////////////////////////////////////Websocket initializing\\\\\\\\\\\\\\\\\\\\\\\
@@ -569,12 +569,17 @@ public class App extends WebSocketClient {
                         // Save updated JSON data back to the file
                         saveJSONData();
                         JOptionPane.showMessageDialog(frame, "Match updated successfully!");
+                        if(selectedIndex+1 == currentMatchIndex){
+                            currentMatchIndex--;
+                            nextGameButton.doClick();
+                        }
                     }
                 }
             });
             nextGameButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     client.updateMatchLabels(NameTeamALabel, NameTeamBLabel, ScoreALabel, ScoreBLabel);
+                    System.out.println(currentMatchIndex);
                     //client.adjustScoreBoardWidth(NameTeamA, NameTeamB);
                     ScoreTeamA = 0;
                     ScoreTeamB = 0;
