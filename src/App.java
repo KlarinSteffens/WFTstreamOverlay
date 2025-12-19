@@ -54,15 +54,16 @@ public class App extends WebSocketClient {
     public String previousScene = "";
     public Boolean changeSceneBack = false;
     public Boolean songPlaying = false;
+    public static Boolean wasMakeActiveButton = false;
     public static JSONArray matchesArray;
     public static JSONObject configVariables;
     public static String jsonFilePath;
     
-    public List<JSONObject> matches = new ArrayList<>();
+    public static List<JSONObject> matches = new ArrayList<>();
     public static int currentMatchIndex = 0;
     public static String MatchTitle = "";
 
-//////////////////////////////////////////////Websocket initializing\\\\\\\\\\\\\\\\\\\\\\\
+//////////////////////////////////////////////Websocket initializing\\\\\\
 
     public App(URI serverUri, String password) {
         super(serverUri);
@@ -100,7 +101,7 @@ public class App extends WebSocketClient {
         if (json.has("op") && json.getInt("op") == 2) {
             handleAuthenticationResponse(json);
         }
-//////////////////////////////////////////////handle custom websocket recieving\\\\\\\\\\\\\\\\\\\\\\\
+//////////////////////////////////////////////handle custom websocket recieving\\\\\\
         if (json.has("d")){
             JSONObject jsonD = json.getJSONObject("d");
             if (jsonD.has("eventData")) {
@@ -183,7 +184,7 @@ public class App extends WebSocketClient {
         }
     }
 
-//////////////////////////////////////////////send Websocketrequests\\\\\\\\\\\\\\\\\\\\\\\
+//////////////////////////////////////////////send Websocketrequests\\\\\\
     public void setTextInputContent(String inputName, String newTextContent) {
         requestID++;
         JSONObject request = new JSONObject();
@@ -295,32 +296,18 @@ public class App extends WebSocketClient {
             }
         }).start();
     }
-    private void loadMatches() throws IOException {
-        try (InputStream is = new FileInputStream(jsonFilePath)) {
-            JSONTokener tokener = new JSONTokener(is);
-            JSONObject jsonObject = new JSONObject(tokener);
-            matchesArray = jsonObject.getJSONArray("matches");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        
-        for (int i = 0; i < matchesArray.length(); i++) {
-            matches.add(matchesArray.getJSONObject(i));
-        }
-    }
-
     public void updateMatchLabels(JLabel NameTeamAlabel, JLabel NameTeamBLabel, JLabel ScoreAlabel, JLabel ScoreBlabel) {
         if (currentMatchIndex < matches.size()) {
-            JSONObject currentMatch = matches.get(currentMatchIndex);
-            NameTeamA = currentMatch.getString("home");
-            NameTeamB = currentMatch.getString("away");
-            MatchTitle = currentMatch.getString("title");
+            JSONObject nextMatch = matches.get(currentMatchIndex);
+            NameTeamA = nextMatch.getString("home");
+            NameTeamB = nextMatch.getString("away");
+            MatchTitle = nextMatch.getString("title");
 
 
             NameTeamAlabel.setText(NameTeamA);
             NameTeamBLabel.setText(NameTeamB);
-            ScoreAlabel.setText(String.valueOf(ScoreTeamA));
-            ScoreBlabel.setText(String.valueOf(ScoreTeamB));
+            ScoreAlabel.setText(String.valueOf(0));
+            ScoreBlabel.setText(String.valueOf(0));
 
             currentMatchIndex++;
         } else {
@@ -330,7 +317,7 @@ public class App extends WebSocketClient {
     }
 
     public static void main(String[] args) throws IOException{
-//////////////////////////////////////////////Config Paramters\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\        
+//////////////////////////////////////////////Config Paramters\\\\\\\\\\\\        
         readConfigData();
         JDialog config = new JDialog((Frame) null, "Configuration", true);
         config.setSize(400, 300);
@@ -375,7 +362,7 @@ public class App extends WebSocketClient {
         });
         config.setVisible(true);
 
-//////////////////////////////////////////////Actual App\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+//////////////////////////////////////////////Actual App\\\\\\\\\\\\
 
         try {
             App client = new App(new URI(serverUri), password);
@@ -385,7 +372,7 @@ public class App extends WebSocketClient {
             client.loadMatches();
 
             JFrame frame = new JFrame("WFT_OBS_Manager");
-            frame.setSize(370, 590);
+            frame.setSize(1130, 590);
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setLayout(null); 
 
@@ -393,7 +380,7 @@ public class App extends WebSocketClient {
             JLabel NameTeamBLabel = new JLabel(NameTeamB, SwingConstants.CENTER);
             JLabel ScoreALabel = new JLabel(String.valueOf(ScoreTeamA), SwingConstants.CENTER);
             JLabel ScoreBLabel = new JLabel(String.valueOf(ScoreTeamB), SwingConstants.CENTER);
-            JLabel timerLabel = new JLabel("00:00");  // Timer starts at 10:00
+            JLabel timerLabel = new JLabel("00:00", SwingConstants.CENTER);  // Timer starts at 10:00
             JButton increaseScoreAbutton = new JButton("+");
             JButton decreaseScoreAbutton = new JButton("-");
             JButton increaseScoreBbutton = new JButton("+");
@@ -417,9 +404,46 @@ public class App extends WebSocketClient {
             JButton resetButton = new JButton("Reset");
             JButton add5 = new JButton("+5");
             //JButton add15 = new JButton("+15");
+
+            JLabel matchIndexLabel[] = new JLabel[matchesArray.length()];
+            JLabel matchTitelLabel[] = new JLabel[matchesArray.length()];
+            JLabel teamALabelArray[] = new JLabel[matchesArray.length()];
+            JLabel teamBLabelArray[] = new JLabel[matchesArray.length()];
+            JLabel scoreTeamALabelArray[] = new JLabel[matchesArray.length()];
+            JLabel scoreTeamBLabelArray[] = new JLabel[matchesArray.length()];
+            JButton activeButton[] = new JButton[matchesArray.length()];
+
             for (int i = 0; i < matchesArray.length(); i++) {
                 JSONObject match = matchesArray.getJSONObject(i);
                 matchDropdown.addItem(match.getInt("id") + ": " + match.getString("title"));
+            }
+            for(int i = 0; i < matchesArray.length(); i++){
+                final int ButtonIndex = i;
+                matchIndexLabel[i] = new JLabel();
+                matchTitelLabel[i] = new JLabel();
+                teamALabelArray[i] = new JLabel();
+                scoreTeamALabelArray[i] = new JLabel();
+                scoreTeamBLabelArray[i] = new JLabel();
+                teamBLabelArray[i] = new JLabel();
+                activeButton[i] = new JButton("make active match");
+                activeButton[i].addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e){
+                            if(currentMatchIndex>0){
+                                saveGameResult();
+                                activeButton[currentMatchIndex-1].setBackground(Color.white);
+                                activeButton[currentMatchIndex-1].setText("make active match");
+                            }
+                            try {
+                                loadMatchesToList(matchIndexLabel, matchTitelLabel, teamALabelArray, scoreTeamALabelArray, scoreTeamBLabelArray , teamBLabelArray, currentMatchIndex-1);
+                            } catch (IOException e1) {
+                                e1.printStackTrace();
+                            }
+                            wasMakeActiveButton = true;
+                            currentMatchIndex = ButtonIndex;
+                            nextGameButton.doClick();
+                    }
+                });
+
             }
 
             increaseScoreAbutton.addActionListener(new ActionListener() {
@@ -568,7 +592,12 @@ public class App extends WebSocketClient {
                         selectedMatch.put("home", homeField.getText());
                         // Save updated JSON data back to the file
                         saveJSONData();
-                        JOptionPane.showMessageDialog(frame, "Match updated successfully!");
+                        //JOptionPane.showMessageDialog(frame, "Match updated successfully!");
+                        try {
+                            loadMatchesToList(matchIndexLabel,matchTitelLabel,teamALabelArray,scoreTeamALabelArray,scoreTeamBLabelArray,teamBLabelArray,selectedIndex);
+                        } catch (IOException e1) {
+                            e1.printStackTrace();
+                        }
                         if(selectedIndex+1 == currentMatchIndex){
                             currentMatchIndex--;
                             nextGameButton.doClick();
@@ -578,6 +607,21 @@ public class App extends WebSocketClient {
             });
             nextGameButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
+                    if(currentMatchIndex>0){
+                        if(!wasMakeActiveButton){
+                            saveGameResult();
+                            activeButton[currentMatchIndex-1].setBackground(Color.white);
+                            activeButton[currentMatchIndex-1].setText("make active Match");
+                            try {
+                                loadMatchesToList(matchIndexLabel,matchTitelLabel,teamALabelArray,scoreTeamALabelArray,scoreTeamBLabelArray,teamBLabelArray,currentMatchIndex-1);
+                            } catch (IOException e1) {
+                                e1.printStackTrace();
+                            }
+                        }
+                        wasMakeActiveButton = false;
+                    }
+                    activeButton[currentMatchIndex].setBackground(Color.cyan);
+                    activeButton[currentMatchIndex].setText("is active Match");
                     client.updateMatchLabels(NameTeamALabel, NameTeamBLabel, ScoreALabel, ScoreBLabel);
                     System.out.println(currentMatchIndex);
                     //client.adjustScoreBoardWidth(NameTeamA, NameTeamB);
@@ -605,6 +649,7 @@ public class App extends WebSocketClient {
                 }
             });
             
+            
 
 
             JPanel TimerPanel = new JPanel();
@@ -617,11 +662,11 @@ public class App extends WebSocketClient {
             secondsInput.setBounds(120, 50, 100, 30);  
             TimerPanel.add(timerLabel);
             TimerPanel.add(new JLabel("Timer") {{setBounds(10, 90, 80, 30);}});
-            timerLabel.setBounds(120, 90, 80, 30); 
+            timerLabel.setBounds(125, 90, 80, 30); 
             /*TimerPanel.add(sub15);
             sub15.setBounds(10,130,30,30);*/
             TimerPanel.add(sub5);
-            sub5.setBounds(10,130,30,30);
+            sub5.setBounds(95,90,50,30);
             TimerPanel.add(startButton);
             startButton.setBounds(50, 130, 70, 30);
             TimerPanel.add(pauseButton);
@@ -629,32 +674,32 @@ public class App extends WebSocketClient {
             TimerPanel.add(resetButton);
             resetButton.setBounds(210, 130, 70, 30);
             TimerPanel.add(add5);
-            add5.setBounds(290,130,30,30);
+            add5.setBounds(185,90,50,30);
             /*TimerPanel.add(add15);
             add15.setBounds(380,130,30,30);*/
 
             JPanel ScorePanel = new JPanel();
             ScorePanel.setLayout(null);
             ScorePanel.add(increaseScoreAbutton);
-            increaseScoreAbutton.setBounds(120, 10, 50,30);
-            ScorePanel.add(ScoreALabel);
-            ScoreALabel.setBounds(120, 50, 50,30);
+            increaseScoreAbutton.setBounds(110, 10, 50,30);
             ScorePanel.add(decreaseScoreAbutton);
-            decreaseScoreAbutton.setBounds(120, 90, 50,30);
+            decreaseScoreAbutton.setBounds(110, 90, 50,30);
             ScorePanel.add(increaseScoreBbutton);
-            increaseScoreBbutton.setBounds(180, 10, 50, 30);
-            ScorePanel.add(ScoreBLabel);
-            ScoreBLabel.setBounds(180, 50, 50, 30);
+            increaseScoreBbutton.setBounds(170, 10, 50, 30);
             ScorePanel.add(decreaseScoreBbutton);
-            decreaseScoreBbutton.setBounds(180, 90, 50, 30);
+            decreaseScoreBbutton.setBounds(170, 90, 50, 30);
+            ScorePanel.add(ScoreALabel);
+            ScoreALabel.setBounds(110, 50, 50,30);
+            ScorePanel.add(ScoreBLabel);
+            ScoreBLabel.setBounds(170, 50, 50, 30);
             ScorePanel.add(NameTeamALabel);
-            NameTeamALabel.setBounds(10, 50, 100, 30);
+            NameTeamALabel.setBounds(0, 50, 100, 30);
             ScorePanel.add(NameTeamBLabel);
-            NameTeamBLabel.setBounds(220, 50, 100, 30);
+            NameTeamBLabel.setBounds(230, 50, 100, 30);
             ScorePanel.add(nextGameButton);
-            nextGameButton.setBounds(180, 130, 100, 30);
+            nextGameButton.setBounds(170, 130, 100, 30);
             ScorePanel.add(triggerReplayButton);
-            triggerReplayButton.setBounds(70,130,100,30);
+            triggerReplayButton.setBounds(60,130,100,30);
 
             JPanel MatchManager = new JPanel();
             MatchManager.setLayout(null);
@@ -669,17 +714,45 @@ public class App extends WebSocketClient {
             awayField.setBounds(120, 90, 150, 30);
             MatchManager.add(saveButton);
             saveButton.setBounds(10, 130, 80, 30);
+                            
+            JPanel MatchList = new JPanel();
+            MatchList.setLayout(null);
+            MatchList.setPreferredSize(new Dimension(620, 40*matchesArray.length() + 10));
+            for(int i = 0; i < matchesArray.length(); i++){
+                int y = 30*i + (10*(i+1));
+                MatchList.add(matchIndexLabel[i]);
+                matchIndexLabel[i].setBounds(10, y,50,30);
+                MatchList.add(matchTitelLabel[i]);
+                matchTitelLabel[i].setBounds(50, y,100,30);
+                MatchList.add(teamALabelArray[i]);
+                teamALabelArray[i].setBounds(160, y,150,30);
+                MatchList.add(scoreTeamALabelArray[i]);
+                scoreTeamALabelArray[i].setBounds(320, y,20,30);
+                MatchList.add(scoreTeamBLabelArray[i]);
+                scoreTeamBLabelArray[i].setBounds(350, y,20,30);
+                MatchList.add(teamBLabelArray[i]);
+                teamBLabelArray[i].setBounds(390, y,150,30);
+                MatchList.add(activeButton[i]);
+                activeButton[i].setBounds(550,y,150,30);
+                loadMatchesToList(matchIndexLabel,matchTitelLabel,teamALabelArray,scoreTeamALabelArray,scoreTeamBLabelArray,teamBLabelArray,i);
+            }
+
+            JScrollPane MatchListScroll = new JScrollPane(MatchList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+            MatchListScroll.getVerticalScrollBar().setUnitIncrement(12);
 
             // Add all to the frame
             frame.add(TimerPanel);
-            TimerPanel.setBounds(10, 10, 330, 170);
+            TimerPanel.setBounds(10, 10, 350, 170);
             TimerPanel.setBackground(Color.gray);
             frame.add(ScorePanel);
-            ScorePanel.setBounds(10,190,330, 170);
+            ScorePanel.setBounds(10,190,350, 170);
             ScorePanel.setBackground(Color.gray);
             frame.add(MatchManager);
-            MatchManager.setBounds(10, 370, 330, 170);
+            MatchManager.setBounds(10, 370, 350, 170);
             MatchManager.setBackground(Color.gray);
+            frame.add(MatchListScroll);
+            MatchListScroll.setBounds(370,10,730,530);
+            MatchList.setBackground(Color.gray);
             frame.setVisible(true);
         }catch (URISyntaxException | InterruptedException | IOException ex) {
             ex.printStackTrace();
@@ -802,11 +875,43 @@ public class App extends WebSocketClient {
         setTextInputContent("Timer", String.format("%02d:%02d", minutes, seconds));
     }
 }
+    private void loadMatches() throws IOException {
+        try (InputStream is = new FileInputStream(jsonFilePath)) {
+            JSONTokener tokener = new JSONTokener(is);
+            JSONObject jsonObject = new JSONObject(tokener);
+            matchesArray = jsonObject.getJSONArray("matches");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        for (int i = 0; i < matchesArray.length(); i++) {
+            matches.add(matchesArray.getJSONObject(i));
+        }
+    }
+    private static void loadMatchesToList(JLabel[] matchesIndexLabel, JLabel[] matchesTitelLabel, JLabel[] teamAListLabel, JLabel[] teamAListScoreLabel, JLabel[] teamBListScoreLabel, JLabel[] teamBListLabel, int matchToWriteIndex) throws IOException {
+        try {
+            JSONObject matchToLoadToList = matches.get(matchToWriteIndex);
+            matchesIndexLabel[matchToWriteIndex].setText(String.valueOf(matchToWriteIndex + 1));
+            matchesTitelLabel[matchToWriteIndex].setText(matchToLoadToList.getString("title"));
+            teamAListLabel[matchToWriteIndex].setText(matchToLoadToList.getString("home"));
+            teamAListScoreLabel[matchToWriteIndex].setText(String.valueOf(matchToLoadToList.getInt("scoreHome"))+ "   :");
+            teamBListScoreLabel[matchToWriteIndex].setText(String.valueOf(matchToLoadToList.getInt("scoreAway")));
+            teamBListLabel[matchToWriteIndex].setText(matchToLoadToList.getString("away"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public static void saveGameResult(){
+        JSONObject currentMatch = matches.get(currentMatchIndex-1);
+        currentMatch.put("scoreHome", ScoreTeamA);
+        currentMatch.put("scoreAway", ScoreTeamB);
+        saveJSONData();
+    }
     private static void saveJSONData() {
         try (OutputStream os = new FileOutputStream(jsonFilePath)) {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("matches", matchesArray);
-            os.write(jsonObject.toString(4).getBytes()); // Write with indentation
+            os.write(jsonObject.toString(4).getBytes());
         } catch (Exception e) {
             e.printStackTrace();
         }
