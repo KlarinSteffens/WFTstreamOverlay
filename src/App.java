@@ -87,7 +87,6 @@ public class App extends WebSocketClient {
             System.out.println("has eventype and scenename");
             if (json.getJSONObject("d").getString("eventType").equals("CurrentProgramSceneChanged") && !json.getJSONObject("d").getJSONObject("eventData").getString("sceneName").equals("ReplayScene")) {
                 changeSceneBack = false;
-                System.out.println(changeSceneBack);
             }
         }
         if (json.has("op") && json.getInt("op") == 0) {
@@ -205,8 +204,6 @@ public class App extends WebSocketClient {
         request.put("op", 6);
 
         send(request.toString());
-        //System.out.println(request.toString());
-        //System.out.println("Sent request to update text input: " + inputName + " to new content: " + newTextContent);
     }
 
     public void SaveReplayBuffer() {
@@ -247,7 +244,6 @@ public class App extends WebSocketClient {
             send(setReplaySceneRequest.toString());
             System.out.println(setReplaySceneRequest.toString());
             changeSceneBack = true;
-            System.out.println(changeSceneBack);
         }
         else {
             System.out.println("WebSocket is not authenticated yet.");
@@ -623,7 +619,6 @@ public class App extends WebSocketClient {
                     activeButton[currentMatchIndex].setBackground(Color.cyan);
                     activeButton[currentMatchIndex].setText("current");
                     client.updateMatchLabels(NameTeamALabel, NameTeamBLabel, ScoreALabel, ScoreBLabel);
-                    System.out.println(currentMatchIndex);
                     //client.adjustScoreBoardWidth(NameTeamA, NameTeamB);
                     ScoreTeamA = 0;
                     ScoreTeamB = 0;
