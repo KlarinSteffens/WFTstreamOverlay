@@ -1,282 +1,324 @@
-{"matches": [
-    {
-        "scoreHome": 0,
-        "away": "GIG- Gewinnen ist geil",
-        "id": "1",
-        "scoreAway": 0,
-        "title": "Gruppe D",
-        "home": "G-67"
+{
+    "teams": {
+        "team13": "Babarenhütte",
+        "teamVolume9": 0,
+        "team12": "Bellas Ballers",
+        "teamVolume8": -33,
+        "team11": "1. FC Sieg sonst 6",
+        "teamVolume7": 0,
+        "team10": "Los Balaneros",
+        "teamVolume12": 0,
+        "team0": "",
+        "teamVolume13": 0,
+        "teamVolume14": 0,
+        "teamVolume15": 0,
+        "team3": "Gewinner Tag 1",
+        "teamVolume16": 0,
+        "team4": "Season Strikers",
+        "teamVolume17": 0,
+        "team1": "",
+        "teamVolume18": 0,
+        "team2": "SB Export",
+        "teamVolume2": -47,
+        "team7": "Die Väterchen",
+        "teamVolume1": -26,
+        "team8": "Die wilden Wickel",
+        "teamVolume0": -57,
+        "team5": "Odins Ultras",
+        "team6": "Goblin Gang",
+        "team18": "G-67",
+        "teamVolume6": -41,
+        "team17": "GIG- Gewinnen ist geil",
+        "teamVolume5": -16,
+        "team16": "Louvre Looters",
+        "teamVolume4": -34,
+        "team9": "Osimhänner",
+        "teamVolume10": 0,
+        "team15": "Teletoms Teletubbies",
+        "teamVolume3": 0,
+        "teamVolume11": 0,
+        "team14": "Die Discounter"
     },
-    {
-        "scoreHome": 0,
-        "away": "Gewinner Tag 1",
-        "id": "2",
-        "scoreAway": 0,
-        "title": "Gruppe D",
-        "home": "SB Export"
-    },
-    {
-        "scoreHome": 0,
-        "away": "Odins Ultras",
-        "id": "3",
-        "scoreAway": 0,
-        "title": "Gruppe D",
-        "home": "Season Strikers"
-    },
-    {
-        "scoreHome": 0,
-        "away": "Die Väterchen",
-        "id": "4",
-        "scoreAway": 0,
-        "title": "Gruppe D",
-        "home": "Goblin Gang"
-    },
-    {
-        "scoreHome": 0,
-        "away": "Osimhänner",
-        "id": "5",
-        "scoreAway": 0,
-        "title": "Gruppe D",
-        "home": "Die wilden Wickel"
-    },
-    {
-        "scoreHome": 0,
-        "away": "1. FC Sieg sonst 6",
-        "id": "6",
-        "scoreAway": 0,
-        "title": "Gruppe D",
-        "home": "Los Balaneros"
-    },
-    {
-        "scoreHome": 0,
-        "away": "Babarenhütte",
-        "id": "7",
-        "scoreAway": 0,
-        "title": "Gruppe D",
-        "home": "Bellas Ballers"
-    },
-    {
-        "scoreHome": 0,
-        "away": "Teletoms Teletubbies",
-        "id": "8",
-        "scoreAway": 0,
-        "title": "Gruppe D",
-        "home": "Die Discounter"
-    },
-    {
-        "scoreHome": 0,
-        "away": "Die wilden Wickel",
-        "id": "9",
-        "scoreAway": 0,
-        "title": "Gruppe D",
-        "home": "Louvre Looters"
-    },
-    {
-        "scoreHome": 0,
-        "away": "SB Export",
-        "id": "10",
-        "scoreAway": 0,
-        "title": "Gruppe D",
-        "home": "Osimhänner"
-    },
-    {
-        "scoreHome": 0,
-        "away": "Season Strikers",
-        "id": "11",
-        "scoreAway": 0,
-        "title": "Gruppe D",
-        "home": "GIG- Gewinnen ist geil"
-    },
-    {
-        "scoreHome": 0,
-        "away": "G-67",
-        "id": "12",
-        "scoreAway": 0,
-        "title": "Gruppe D",
-        "home": "Odins Ultras"
-    },
-    {
-        "scoreHome": 0,
-        "away": "Goblin Gang",
-        "id": "13",
-        "scoreAway": 0,
-        "title": "Gruppe D",
-        "home": "Bellas Ballers"
-    },
-    {
-        "scoreHome": 0,
-        "away": "SB Export",
-        "id": "14",
-        "scoreAway": 0,
-        "title": "Gruppe D",
-        "home": "Die wilden Wickel"
-    },
-    {
-        "scoreHome": 0,
-        "away": "Babarenhütte",
-        "id": "15",
-        "scoreAway": 0,
-        "title": "Gruppe D",
-        "home": "Die Väterchen"
-    },
-    {
-        "scoreHome": 0,
-        "away": "Die Discounter",
-        "id": "16",
-        "scoreAway": 0,
-        "title": "Gruppe D",
-        "home": "1. FC Sieg sonst 6"
-    },
-    {
-        "scoreHome": 0,
-        "away": "Los Balaneros",
-        "id": "17",
-        "scoreAway": 0,
-        "title": "Gruppe D",
-        "home": "Teletoms Teletubbies"
-    },
-    {
-        "scoreHome": 0,
-        "away": "Die wilden Wickel",
-        "id": "18",
-        "scoreAway": 0,
-        "title": "Gruppe D",
-        "home": "Gewinner Tag 1"
-    },
-    {
-        "scoreHome": 0,
-        "away": "GIG- Gewinnen ist geil ",
-        "id": "19",
-        "scoreAway": 0,
-        "title": "Gruppe D",
-        "home": "Odins Ultras"
-    },
-    {
-        "scoreHome": 0,
-        "away": "Louvre Looters",
-        "id": "20",
-        "scoreAway": 0,
-        "title": "Gruppe D",
-        "home": "Osimhänner"
-    },
-    {
-        "scoreHome": 0,
-        "away": "Season Strikers",
-        "id": "21",
-        "scoreAway": 0,
-        "title": "Gruppe D",
-        "home": "G-67"
-    },
-    {
-        "scoreHome": 0,
-        "away": "Babarenhütte",
-        "id": "22",
-        "scoreAway": 0,
-        "title": "Gruppe D",
-        "home": "Goblin Gang"
-    },
-    {
-        "scoreHome": 0,
-        "away": "Gewinner Tag 1",
-        "id": "23",
-        "scoreAway": 0,
-        "title": "Gruppe D",
-        "home": "Louvre Looters"
-    },
-    {
-        "scoreHome": 0,
-        "away": "Bellas Ballers",
-        "id": "24",
-        "scoreAway": 0,
-        "title": "Gruppe D",
-        "home": "Die Väterchen"
-    },
-    {
-        "scoreHome": 0,
-        "away": "Die Discounter",
-        "id": "25",
-        "scoreAway": 0,
-        "title": "Gruppe D",
-        "home": "Los Balaneros"
-    },
-    {
-        "scoreHome": 0,
-        "away": "1. FC Sieg sonst 6",
-        "id": "26",
-        "scoreAway": 0,
-        "title": "Gruppe D",
-        "home": "Teletoms Teletubbies"
-    },
-    {
-        "scoreHome": 0,
-        "away": "Louvre Looters",
-        "id": "27",
-        "scoreAway": 0,
-        "title": "Gruppe D",
-        "home": "SB Export"
-    },
-    {
-        "scoreHome": 0,
-        "away": "Gewinner Tag 1",
-        "id": "28",
-        "scoreAway": 0,
-        "title": "Gruppe D",
-        "home": "Osimhänner"
-    },
-    {
-        "scoreHome": 0,
-        "away": "2. Gruppe B",
-        "id": "29",
-        "scoreAway": 0,
-        "title": "Viertelfinal 1",
-        "home": "1. Gruppe A"
-    },
-    {
-        "scoreHome": 0,
-        "away": "2. Gruppe D",
-        "id": "30",
-        "scoreAway": 0,
-        "title": "Viertelfinal 2",
-        "home": "1. Gruppe C"
-    },
-    {
-        "scoreHome": 0,
-        "away": "1. Gruppe B",
-        "id": "31",
-        "scoreAway": 0,
-        "title": "Viertelfinal 3",
-        "home": "2. Gruppe A"
-    },
-    {
-        "scoreHome": 0,
-        "away": "1. Gruppe D",
-        "id": "32",
-        "scoreAway": 0,
-        "title": "Viertelfinal 4",
-        "home": "2. Gruppe C"
-    },
-    {
-        "scoreHome": 0,
-        "away": "Gewinner VF2",
-        "id": "33",
-        "scoreAway": 0,
-        "title": "Halbfinale 1",
-        "home": "Gewinner VF1"
-    },
-    {
-        "scoreHome": 0,
-        "away": "Gewinner VF4",
-        "id": "34",
-        "scoreAway": 0,
-        "title": "Halbfinale 2",
-        "home": "Gewinner VF3"
-    },
-    {
-        "scoreHome": 0,
-        "away": "Gewinner HF2",
-        "id": "35",
-        "scoreAway": 0,
-        "title": "Finale",
-        "home": "Gewinner HF1"
-    }
-]}
+    "matches": [
+        {
+            "scoreHome": 0,
+            "away": "",
+            "id": "1",
+            "scoreAway": 0,
+            "title": "Gruppe D",
+            "home": ""
+        },
+        {
+            "scoreHome": 0,
+            "away": "Gewinner Tag 1",
+            "id": "2",
+            "scoreAway": 0,
+            "title": "Gruppe D",
+            "home": "SB Export"
+        },
+        {
+            "scoreHome": 0,
+            "away": "Odins Ultras",
+            "id": "3",
+            "scoreAway": 0,
+            "title": "Gruppe D",
+            "home": "Season Strikers"
+        },
+        {
+            "scoreHome": 0,
+            "away": "Die Väterchen",
+            "id": "4",
+            "scoreAway": 0,
+            "title": "Gruppe D",
+            "home": "Goblin Gang"
+        },
+        {
+            "scoreHome": 0,
+            "away": "Osimhänner",
+            "id": "5",
+            "scoreAway": 0,
+            "title": "Gruppe D",
+            "home": "Die wilden Wickel"
+        },
+        {
+            "scoreHome": 0,
+            "away": "1. FC Sieg sonst 6",
+            "id": "6",
+            "scoreAway": 0,
+            "title": "Gruppe D",
+            "home": "Los Balaneros"
+        },
+        {
+            "scoreHome": 0,
+            "away": "Babarenhütte",
+            "id": "7",
+            "scoreAway": 0,
+            "title": "Gruppe D",
+            "home": "Bellas Ballers"
+        },
+        {
+            "scoreHome": 0,
+            "away": "Teletoms Teletubbies",
+            "id": "8",
+            "scoreAway": 0,
+            "title": "Gruppe D",
+            "home": "Die Discounter"
+        },
+        {
+            "scoreHome": 0,
+            "away": "Die wilden Wickel",
+            "id": "9",
+            "scoreAway": 0,
+            "title": "Gruppe D",
+            "home": "Louvre Looters"
+        },
+        {
+            "scoreHome": 0,
+            "away": "SB Export",
+            "id": "10",
+            "scoreAway": 0,
+            "title": "Gruppe D",
+            "home": "Osimhänner"
+        },
+        {
+            "scoreHome": 0,
+            "away": "Season Strikers",
+            "id": "11",
+            "scoreAway": 0,
+            "title": "Gruppe D",
+            "home": "GIG- Gewinnen ist geil"
+        },
+        {
+            "scoreHome": 0,
+            "away": "G-67",
+            "id": "12",
+            "scoreAway": 0,
+            "title": "Gruppe D",
+            "home": "Odins Ultras"
+        },
+        {
+            "scoreHome": 0,
+            "away": "Goblin Gang",
+            "id": "13",
+            "scoreAway": 0,
+            "title": "Gruppe D",
+            "home": "Bellas Ballers"
+        },
+        {
+            "scoreHome": 0,
+            "away": "SB Export",
+            "id": "14",
+            "scoreAway": 0,
+            "title": "Gruppe D",
+            "home": "Die wilden Wickel"
+        },
+        {
+            "scoreHome": 0,
+            "away": "Babarenhütte",
+            "id": "15",
+            "scoreAway": 0,
+            "title": "Gruppe D",
+            "home": "Die Väterchen"
+        },
+        {
+            "scoreHome": 0,
+            "away": "Die Discounter",
+            "id": "16",
+            "scoreAway": 0,
+            "title": "Gruppe D",
+            "home": "1. FC Sieg sonst 6"
+        },
+        {
+            "scoreHome": 0,
+            "away": "Los Balaneros",
+            "id": "17",
+            "scoreAway": 0,
+            "title": "Gruppe D",
+            "home": "Teletoms Teletubbies"
+        },
+        {
+            "scoreHome": 0,
+            "away": "Die wilden Wickel",
+            "id": "18",
+            "scoreAway": 0,
+            "title": "Gruppe D",
+            "home": "Gewinner Tag 1"
+        },
+        {
+            "scoreHome": 0,
+            "away": "GIG- Gewinnen ist geil",
+            "id": "19",
+            "scoreAway": 0,
+            "title": "Gruppe D",
+            "home": "Odins Ultras"
+        },
+        {
+            "scoreHome": 0,
+            "away": "Louvre Looters",
+            "id": "20",
+            "scoreAway": 0,
+            "title": "Gruppe D",
+            "home": "Osimhänner"
+        },
+        {
+            "scoreHome": 0,
+            "away": "Season Strikers",
+            "id": "21",
+            "scoreAway": 0,
+            "title": "Gruppe D",
+            "home": "G-67"
+        },
+        {
+            "scoreHome": 0,
+            "away": "Babarenhütte",
+            "id": "22",
+            "scoreAway": 0,
+            "title": "Gruppe D",
+            "home": "Goblin Gang"
+        },
+        {
+            "scoreHome": 0,
+            "away": "Gewinner Tag 1",
+            "id": "23",
+            "scoreAway": 0,
+            "title": "Gruppe D",
+            "home": "Louvre Looters"
+        },
+        {
+            "scoreHome": 0,
+            "away": "Bellas Ballers",
+            "id": "24",
+            "scoreAway": 0,
+            "title": "Gruppe D",
+            "home": "Die Väterchen"
+        },
+        {
+            "scoreHome": 0,
+            "away": "Die Discounter",
+            "id": "25",
+            "scoreAway": 0,
+            "title": "Gruppe D",
+            "home": "Los Balaneros"
+        },
+        {
+            "scoreHome": 0,
+            "away": "1. FC Sieg sonst 6",
+            "id": "26",
+            "scoreAway": 0,
+            "title": "Gruppe D",
+            "home": "Teletoms Teletubbies"
+        },
+        {
+            "scoreHome": 0,
+            "away": "Louvre Looters",
+            "id": "27",
+            "scoreAway": 0,
+            "title": "Gruppe D",
+            "home": "SB Export"
+        },
+        {
+            "scoreHome": 0,
+            "away": "Gewinner Tag 1",
+            "id": "28",
+            "scoreAway": 0,
+            "title": "Gruppe D",
+            "home": "Osimhänner"
+        },
+        {
+            "scoreHome": 0,
+            "away": "2. Gruppe B",
+            "id": "29",
+            "scoreAway": 0,
+            "title": "Viertelfinal 1",
+            "home": "1. Gruppe A"
+        },
+        {
+            "scoreHome": 0,
+            "away": "2. Gruppe D",
+            "id": "30",
+            "scoreAway": 0,
+            "title": "Viertelfinal 2",
+            "home": "1. Gruppe C"
+        },
+        {
+            "scoreHome": 0,
+            "away": "1. Gruppe B",
+            "id": "31",
+            "scoreAway": 0,
+            "title": "Viertelfinal 3",
+            "home": "2. Gruppe A"
+        },
+        {
+            "scoreHome": 0,
+            "away": "1. Gruppe D",
+            "id": "32",
+            "scoreAway": 0,
+            "title": "Viertelfinal 4",
+            "home": "2. Gruppe C"
+        },
+        {
+            "scoreHome": 0,
+            "away": "Gewinner VF2",
+            "id": "33",
+            "scoreAway": 0,
+            "title": "Halbfinale 1",
+            "home": "Gewinner VF1"
+        },
+        {
+            "scoreHome": 0,
+            "away": "Gewinner VF4",
+            "id": "34",
+            "scoreAway": 0,
+            "title": "Halbfinale 2",
+            "home": "Gewinner VF3"
+        },
+        {
+            "scoreHome": 0,
+            "away": "Gewinner HF2",
+            "id": "35",
+            "scoreAway": 0,
+            "title": "Finale",
+            "home": "Gewinner HF1"
+        }
+    ]
+}

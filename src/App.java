@@ -14,6 +14,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
 import java.awt.*;
 import java.util.List;
 import java.util.ArrayList;
@@ -56,6 +59,7 @@ public class App extends WebSocketClient {
     public Boolean songPlaying = false;
     public static Boolean wasMakeActiveButton = false;
     public static JSONArray matchesArray;
+    public static JSONObject teamArray;
     public static JSONObject configVariables;
     public static String jsonFilePath;
     
@@ -365,10 +369,11 @@ public class App extends WebSocketClient {
             client.connectBlocking();
 
             // Load matches from JSON
-            client.loadMatches();
+            client.loadJSONFile();
+            client.loadTeamArray();
 
             JFrame frame = new JFrame("WFT_OBS_Manager");
-            frame.setSize(1130, 590);
+            frame.setSize(1130, 850);
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setLayout(null); 
 
@@ -437,6 +442,19 @@ public class App extends WebSocketClient {
                             wasMakeActiveButton = true;
                             currentMatchIndex = ButtonIndex;
                             nextGameButton.doClick();
+                    }
+                });
+
+            }
+            JPanel[] songExistsPanel = new JPanel[teamArray.length()/2];
+            JSlider[] goalSongFader = new JSlider[teamArray.length()/2];
+                for(int i = 0; i < teamArray.length()/2; i++){
+                final int FaderIndex = i;
+                songExistsPanel[i] = new JPanel();
+                goalSongFader[i] = new JSlider(JSlider.VERTICAL, -75, 15, teamArray.getInt("teamVolume" + i));
+                goalSongFader[i].addChangeListener(new ChangeListener() {
+                    public void stateChanged(ChangeEvent e){
+                        teamArray.put("teamVolume" + FaderIndex, goalSongFader[FaderIndex].getValue());
                     }
                 });
 
@@ -712,7 +730,7 @@ public class App extends WebSocketClient {
                             
             JPanel MatchList = new JPanel();
             MatchList.setLayout(null);
-            MatchList.setPreferredSize(new Dimension(620, 40*matchesArray.length() + 10));
+            MatchList.setPreferredSize(new Dimension(730, 40*matchesArray.length() + 10));
             for(int i = 0; i < matchesArray.length(); i++){
                 int y = 30*i + (10*(i+1));
                 MatchList.add(matchIndexLabel[i]);
@@ -735,6 +753,24 @@ public class App extends WebSocketClient {
             JScrollPane MatchListScroll = new JScrollPane(MatchList, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
             MatchListScroll.getVerticalScrollBar().setUnitIncrement(12);
 
+            JPanel MusicControl = new JPanel();
+            MusicControl.setLayout(null);
+
+            JPanel FaderBank = new JPanel();
+            FaderBank.setLayout(null);
+            FaderBank.setPreferredSize(new Dimension(60*teamArray.length()/2 + 10, 170));
+            for(int i = 0; i < teamArray.length()/2; i++){
+                int x = 50*i + (10*(i+1));
+                FaderBank.add(songExistsPanel[i]);
+                songExistsPanel[i].setBounds(x + 10, 200,30,20);
+                FaderBank.add(goalSongFader[i]);
+                goalSongFader[i].setBounds(x, 10,50,180);
+                loadMatchesToList(matchIndexLabel,matchTitelLabel,teamALabelArray,scoreTeamALabelArray,scoreTeamBLabelArray,teamBLabelArray,i);
+            }
+
+            JScrollPane FaderBankScroll = new JScrollPane(FaderBank, JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+            FaderBankScroll.getHorizontalScrollBar().setUnitIncrement(12);
+
             // Add all to the frame
             frame.add(TimerPanel);
             TimerPanel.setBounds(10, 10, 350, 170);
@@ -748,6 +784,12 @@ public class App extends WebSocketClient {
             frame.add(MatchListScroll);
             MatchListScroll.setBounds(370,10,730,530);
             MatchList.setBackground(Color.gray);
+            frame.add(MusicControl);
+            MusicControl.setBounds(10,550,350,250);
+            MusicControl.setBackground(Color.gray);
+            frame.add(FaderBankScroll);
+            FaderBankScroll.setBounds(370,550, 730,250);
+            FaderBank.setBackground(Color.gray);
             frame.setVisible(true);
         }catch (URISyntaxException | InterruptedException | IOException ex) {
             ex.printStackTrace();
@@ -870,11 +912,17 @@ public class App extends WebSocketClient {
         setTextInputContent("Timer", String.format("%02d:%02d", minutes, seconds));
     }
 }
-    private void loadMatches() throws IOException {
+    private void loadJSONFile() throws IOException {
         try (InputStream is = new FileInputStream(jsonFilePath)) {
             JSONTokener tokener = new JSONTokener(is);
             JSONObject jsonObject = new JSONObject(tokener);
             matchesArray = jsonObject.getJSONArray("matches");
+            if (jsonObject.has("teams")) {
+                teamArray = jsonObject.getJSONObject("teams");
+            }
+            else{
+                teamArray = new JSONObject();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -896,6 +944,39 @@ public class App extends WebSocketClient {
             e.printStackTrace();
         }
     }
+    public void loadTeamArray(){
+        System.out.println(teamArray.length());
+        Boolean gotTeamA = false;
+        Boolean gotTeamB = false;
+        for(int i = 0; i < matchesArray.length(); i++){
+            JSONObject readTeamFrom = matches.get(i);
+            if (readTeamFrom.getString("title").contains("Gruppe")) {
+                for(int j = 0; j < (teamArray.length()/2); j++){
+                    if (teamArray.getString("team"+j).equals(readTeamFrom.getString("home")) || teamArray.getString("team"+j).equals(readTeamFrom.getString("away"))) {
+                        if (teamArray.getString("team"+j).equals(readTeamFrom.getString("home"))) {
+                            gotTeamA = true;
+                        }
+                        if (teamArray.getString("team"+j).equals(readTeamFrom.getString("away"))) {
+                            gotTeamB = true;
+                        }
+                    }
+                } 
+                if (gotTeamA == false) {
+                    teamArray.put("team"+ teamArray.length()/2,readTeamFrom.getString("home"));
+                    teamArray.put("teamVolume" + teamArray.length()/2, 0);
+                    System.out.println("added Team A");
+                }
+                if (gotTeamB == false) {
+                    teamArray.put("team"+teamArray.length()/2,readTeamFrom.getString("away"));
+                    teamArray.put("teamVolume" + teamArray.length()/2, 0);
+                    System.out.println("added Team B");
+                }
+                gotTeamA = false;
+                gotTeamB = false;
+            }
+        }
+        System.out.println(teamArray);
+    }
     public static void saveGameResult(){
         JSONObject currentMatch = matches.get(currentMatchIndex-1);
         currentMatch.put("scoreHome", ScoreTeamA);
@@ -906,6 +987,7 @@ public class App extends WebSocketClient {
         try (OutputStream os = new FileOutputStream(jsonFilePath)) {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("matches", matchesArray);
+            jsonObject.put("teams", teamArray);
             os.write(jsonObject.toString(4).getBytes());
         } catch (Exception e) {
             e.printStackTrace();
