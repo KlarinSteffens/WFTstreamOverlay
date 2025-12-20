@@ -6,28 +6,34 @@ import org.json.JSONArray;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-//import java.nio.file.Path;
-//import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.util.Base64;
+import java.util.Hashtable;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.stream.Collectors;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import java.awt.*;
 import java.util.List;
 import java.util.ArrayList;
 import org.json.JSONTokener;
 import java.awt.event.*;
+import javazoom.jl.decoder.Bitstream;
+import javazoom.jl.decoder.Decoder;
+import javazoom.jl.decoder.Header;
+import javazoom.jl.decoder.SampleBuffer;
 import java.io.*;
 
-import javazoom.jl.decoder.JavaLayerException;
-import javazoom.jl.player.Player;
-public class App extends WebSocketClient {
+import javax.sound.sampled.*;
 
+
+public class App extends WebSocketClient {
 //////////////////////////////////////////////Variables\\\\\\\\\\\\\\\\\\\\\\\
     //websocketConnection
     //private String password;
@@ -57,9 +63,11 @@ public class App extends WebSocketClient {
     public String previousScene = "";
     public Boolean changeSceneBack = false;
     public Boolean songPlaying = false;
+    public static Boolean isUpdatingText = true;
     public static Boolean wasMakeActiveButton = false;
     public static JSONArray matchesArray;
     public static JSONObject teamArray;
+    public static JSONObject teamVolumeArray;
     public static JSONObject configVariables;
     public static String jsonFilePath;
     
@@ -88,7 +96,6 @@ public class App extends WebSocketClient {
         }
 
         if (json.has("op") && json.getInt("op") == 5 && json.getJSONObject("d").has("eventType") && json.getJSONObject("d").getJSONObject("eventData").has("sceneName")) {
-            System.out.println("has eventype and scenename");
             if (json.getJSONObject("d").getString("eventType").equals("CurrentProgramSceneChanged") && !json.getJSONObject("d").getJSONObject("eventData").getString("sceneName").equals("ReplayScene")) {
                 changeSceneBack = false;
             }
@@ -281,34 +288,123 @@ public class App extends WebSocketClient {
         send(setCurrentScene.toString());
         System.out.println(setCurrentScene.toString());
     }
-    public void playGoalSong(String scoreGainedTeam) throws JavaLayerException, FileNotFoundException{
-        if (songPlaying) return;
+    public void playGoalSong(String scoreGainedTeam, JSlider volumeSlider, JSlider mainSlider) {
+        if (songPlaying) return; 
 
         new Thread(() -> {
             songPlaying = true;
-            try (FileInputStream fis = new FileInputStream("Torsongs/" + scoreGainedTeam + ".mp3")) {
-                Player player = new Player(fis);
-                player.play();
-            } catch (JavaLayerException| IOException e ) {
+            SourceDataLine line = null;
+            ChangeListener volumeUpdater = null; // We define this here to remove it later
+
+            try {
+                FileInputStream fis = new FileInputStream("Torsongs/" + scoreGainedTeam + ".mp3");
+                Bitstream bitstream = new Bitstream(fis);
+                Decoder decoder = new Decoder();
+                Header header;
+
+                while ((header = bitstream.readFrame()) != null) {
+                    SampleBuffer output = (SampleBuffer) decoder.decodeFrame(header, bitstream);
+
+                    if (line == null) {
+                        AudioFormat format = new AudioFormat(output.getSampleFrequency(), 16, output.getChannelCount(), true, false);
+                        line = AudioSystem.getSourceDataLine(format);
+                        line.open(format);
+                        line.start();
+
+                        if (line.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+                            FloatControl volumeControl = (FloatControl) line.getControl(FloatControl.Type.MASTER_GAIN);
+
+                            volumeUpdater = e -> {
+                                // 1. Get linear factors (e.g., 50% = 0.5, 150% = 1.5)
+                                float songVol = volumeSlider.getValue() / 100f;
+                                float mainVol = mainSlider.getValue() / 100f; 
+
+                                float combinedFactor = songVol * mainVol;
+
+                                float dB = (float) (20.0 * Math.log10(combinedFactor > 0.0001 ? combinedFactor : 0.0001));
+
+                                // 4. Clamp to hardware limits to prevent crashing
+                                // (Most systems max out at +6dB, which fits your 150% / +3.5dB need)
+                                if (dB < volumeControl.getMinimum()) dB = volumeControl.getMinimum();
+                                if (dB > volumeControl.getMaximum()) dB = volumeControl.getMaximum();
+
+                                volumeControl.setValue(dB);
+                            };
+
+                            // Apply volume immediately
+                            volumeUpdater.stateChanged(null);
+
+                            // Attach the SAME listener to BOTH sliders
+                            volumeSlider.addChangeListener(volumeUpdater);
+                            mainSlider.addChangeListener(volumeUpdater);
+                        }
+                    }
+
+                    byte[] buffer = new byte[output.getBufferLength() * 2];
+                    short[] samples = output.getBuffer();
+                    for (int i = 0; i < samples.length; i++) {
+                        buffer[i * 2] = (byte) (samples[i] & 0xff);
+                        buffer[i * 2 + 1] = (byte) ((samples[i] >> 8) & 0xff);
+                    }
+
+                    line.write(buffer, 0, buffer.length);
+                    bitstream.closeFrame();
+                }
+
+                fis.close();
+            } catch (Exception e) {
                 e.printStackTrace();
-            }finally {
+            } finally {
+                // CRITICAL: Remove listener from BOTH sliders
+                if (volumeUpdater != null) {
+                    volumeSlider.removeChangeListener(volumeUpdater);
+                    mainSlider.removeChangeListener(volumeUpdater);
+                }
+                if (line != null) {
+                    line.drain();
+                    line.close();
+                }
                 songPlaying = false;
             }
         }).start();
     }
-    public void updateMatchLabels(JLabel NameTeamAlabel, JLabel NameTeamBLabel, JLabel ScoreAlabel, JLabel ScoreBlabel) {
+    public void updateMatchLabels(JLabel NameTeamAlabel, JLabel NameTeamBLabel, JLabel ScoreAlabel, JLabel ScoreBlabel, JLabel NameTeamALabelMusic, JLabel NameTeamBLabelMusic, JPanel goalSongTeamAExists, JPanel goalSongTeamBExists, JSlider teamASlider, JSlider teamBSlider) {
         if (currentMatchIndex < matches.size()) {
             JSONObject nextMatch = matches.get(currentMatchIndex);
             NameTeamA = nextMatch.getString("home");
             NameTeamB = nextMatch.getString("away");
             MatchTitle = nextMatch.getString("title");
 
-
+            File goalSongTeamA = new File("Torsongs/" + NameTeamA + ".mp3");
+            File goalSongTeamB = new File("Torsongs/" + NameTeamB + ".mp3");
+            if(goalSongTeamA.exists()){
+                goalSongTeamAExists.setBackground(Color.green);
+            }
+            else{
+                goalSongTeamAExists.setBackground(Color.white);
+            }
+            if(goalSongTeamB.exists()){
+                goalSongTeamBExists.setBackground(Color.green);
+            }
+            else{
+                goalSongTeamBExists.setBackground(Color.white);
+            }
             NameTeamAlabel.setText(NameTeamA);
+            NameTeamALabelMusic.setText(NameTeamA);
             NameTeamBLabel.setText(NameTeamB);
+            NameTeamBLabelMusic.setText(NameTeamB);
             ScoreAlabel.setText(String.valueOf(0));
             ScoreBlabel.setText(String.valueOf(0));
-
+            for (int i = 0; i < teamArray.length(); i++) {
+                    if(teamArray.getString("team" + i).equals(NameTeamA)){
+                        teamASlider.setValue(teamVolumeArray.getInt("teamVolume" + i));
+                    }
+            }
+            for (int i = 0; i < teamArray.length(); i++) {
+                    if(teamArray.getString("team" + i).equals(NameTeamB)){
+                        teamBSlider.setValue(teamVolumeArray.getInt("teamVolume" + i));
+                    }
+            }
             currentMatchIndex++;
         } else {
             NameTeamAlabel.setText("No more matches");
@@ -373,9 +469,14 @@ public class App extends WebSocketClient {
             client.loadTeamArray();
 
             JFrame frame = new JFrame("WFT_OBS_Manager");
-            frame.setSize(1130, 850);
+            frame.setSize(1130, 780);
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setLayout(null); 
+            frame.addWindowListener(new WindowAdapter() {
+                public void windowClosing(WindowEvent e) {
+                    saveJSONData();
+                }
+            });
 
             JLabel NameTeamALabel = new JLabel(NameTeamA, SwingConstants.CENTER);
             JLabel NameTeamBLabel = new JLabel(NameTeamB, SwingConstants.CENTER);
@@ -396,6 +497,7 @@ public class App extends WebSocketClient {
             homeField.setColumns(20);
             JTextField awayField = new JTextField(20);
             awayField.setColumns(20);
+            JPopupMenu teamSuggestions = new JPopupMenu();
             JButton saveButton = new JButton("Save");
             JComboBox<String> matchDropdown = new JComboBox<>();
             //JButton sub15 = new JButton("-15");
@@ -446,19 +548,17 @@ public class App extends WebSocketClient {
                 });
 
             }
-            JPanel[] songExistsPanel = new JPanel[teamArray.length()/2];
-            JSlider[] goalSongFader = new JSlider[teamArray.length()/2];
-                for(int i = 0; i < teamArray.length()/2; i++){
-                final int FaderIndex = i;
-                songExistsPanel[i] = new JPanel();
-                goalSongFader[i] = new JSlider(JSlider.VERTICAL, -75, 15, teamArray.getInt("teamVolume" + i));
-                goalSongFader[i].addChangeListener(new ChangeListener() {
-                    public void stateChanged(ChangeEvent e){
-                        teamArray.put("teamVolume" + FaderIndex, goalSongFader[FaderIndex].getValue());
-                    }
-                });
+            JLabel NameTeamALabelMusic = new JLabel(NameTeamA, SwingConstants.CENTER);
+            JLabel NameTeamBLabelMusic = new JLabel(NameTeamB, SwingConstants.CENTER);
+            JPanel songTeamAExistsPanel = new JPanel();
+            JPanel songTeamBExistsPanel = new JPanel();
+            JSlider goalSongTeamAFader = new JSlider(JSlider.HORIZONTAL, 0, 100, 100);
+            JSlider goalSongTeamBFader = new JSlider(JSlider.HORIZONTAL, 0, 100, 100);
+            JSlider goalSongMainFader = new JSlider(JSlider.HORIZONTAL, 0, 150, 100);
+            addDbLabels(goalSongTeamAFader, 100);
+            addDbLabels(goalSongTeamBFader, 100);
+            addDbLabels(goalSongMainFader, 150);
 
-            }
 
             increaseScoreAbutton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -469,11 +569,7 @@ public class App extends WebSocketClient {
                     } else {
                         System.out.println("WebSocket is not authenticated yet.");
                     }
-                    try {
-                        client.playGoalSong(NameTeamA);
-                    } catch (FileNotFoundException | JavaLayerException e1) {
-                        e1.printStackTrace();
-                    }
+                    client.playGoalSong(NameTeamA, goalSongTeamAFader, goalSongMainFader);
                 }
             });
             decreaseScoreAbutton.addActionListener(new ActionListener() {
@@ -497,11 +593,7 @@ public class App extends WebSocketClient {
 
                     if (client.isAuthenticated) {
                         client.setTextInputContent("ScoreTeamB", String.valueOf(ScoreTeamB));
-                        try {
-                            client.playGoalSong(NameTeamB);
-                        } catch (FileNotFoundException | JavaLayerException e1) {
-                            e1.printStackTrace();
-                        }
+                        client.playGoalSong(NameTeamB, goalSongTeamBFader, goalSongMainFader);
                     } else {
                         System.out.println("WebSocket is not authenticated yet.");
                     }
@@ -636,7 +728,7 @@ public class App extends WebSocketClient {
                     }
                     activeButton[currentMatchIndex].setBackground(Color.cyan);
                     activeButton[currentMatchIndex].setText("current");
-                    client.updateMatchLabels(NameTeamALabel, NameTeamBLabel, ScoreALabel, ScoreBLabel);
+                    client.updateMatchLabels(NameTeamALabel, NameTeamBLabel, ScoreALabel, ScoreBLabel, NameTeamALabelMusic, NameTeamBLabelMusic, songTeamAExistsPanel, songTeamBExistsPanel, goalSongTeamAFader, goalSongTeamBFader);
                     //client.adjustScoreBoardWidth(NameTeamA, NameTeamB);
                     ScoreTeamA = 0;
                     ScoreTeamB = 0;
@@ -658,6 +750,70 @@ public class App extends WebSocketClient {
                         client.setCurrentScene("Cam1Nextup");
                     } else {
                         System.out.println("WebSocket is not authenticated yet.");
+                    }
+                }
+            });
+            homeField.getDocument().addDocumentListener(new DocumentListener() {
+                public void insertUpdate(DocumentEvent e) {
+                    if(isUpdatingText == false){
+                        List<String> teamStringArray =  teamArrayToString();
+                        showSuggestions(teamSuggestions, homeField, teamStringArray); 
+                    }
+                }
+                public void removeUpdate(DocumentEvent e) { 
+                    if(isUpdatingText == false){
+                        List<String> teamStringArray =  teamArrayToString();
+                        showSuggestions(teamSuggestions, homeField, teamStringArray); 
+                    }
+                }
+                public void changedUpdate(DocumentEvent e) {
+
+                }
+            });
+            awayField.getDocument().addDocumentListener(new DocumentListener() {
+                public void insertUpdate(DocumentEvent e) { 
+                    if(isUpdatingText == false){
+                        List<String> teamStringArray =  teamArrayToString();
+                        showSuggestions(teamSuggestions, homeField, teamStringArray); 
+                    }
+                }
+                public void removeUpdate(DocumentEvent e) { 
+                    if(isUpdatingText == false){
+                        List<String> teamStringArray =  teamArrayToString();
+                        showSuggestions(teamSuggestions, homeField, teamStringArray); 
+                    }
+                }
+                public void changedUpdate(DocumentEvent e) {
+
+                }
+            });
+            /*homeField.addFocusListener(new FocusAdapter() {
+                @Override
+                public void focusLost(FocusEvent e) {
+                    teamSuggestions.setVisible(false);
+                }
+            });
+            awayField.addFocusListener(new FocusAdapter() {
+                @Override
+                public void focusLost(FocusEvent e) {
+                    teamSuggestions.setVisible(false);
+                }
+            });*/
+            goalSongTeamAFader.addChangeListener(new ChangeListener() {
+                public void stateChanged(ChangeEvent e){
+                    for (int i = 0; i < teamArray.length(); i++) {
+                        if(teamArray.getString("team" + i).equals(NameTeamA)){
+                            teamVolumeArray.put("teamVolume" + i, goalSongTeamAFader.getValue());
+                        }
+                    }
+                }
+            });
+            goalSongTeamBFader.addChangeListener(new ChangeListener() {
+                public void stateChanged(ChangeEvent e){
+                    for (int i = 0; i < teamArray.length(); i++) {
+                        if(teamArray.getString("team" + i).equals(NameTeamB)){
+                            teamVolumeArray.put("teamVolume" + i, goalSongTeamBFader.getValue());
+                        }
                     }
                 }
             });
@@ -758,18 +914,22 @@ public class App extends WebSocketClient {
 
             JPanel FaderBank = new JPanel();
             FaderBank.setLayout(null);
-            FaderBank.setPreferredSize(new Dimension(60*teamArray.length()/2 + 10, 170));
-            for(int i = 0; i < teamArray.length()/2; i++){
-                int x = 50*i + (10*(i+1));
-                FaderBank.add(songExistsPanel[i]);
-                songExistsPanel[i].setBounds(x + 10, 200,30,20);
-                FaderBank.add(goalSongFader[i]);
-                goalSongFader[i].setBounds(x, 10,50,180);
-                loadMatchesToList(matchIndexLabel,matchTitelLabel,teamALabelArray,scoreTeamALabelArray,scoreTeamBLabelArray,teamBLabelArray,i);
-            }
-
-            JScrollPane FaderBankScroll = new JScrollPane(FaderBank, JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-            FaderBankScroll.getHorizontalScrollBar().setUnitIncrement(12);
+            FaderBank.setPreferredSize(new Dimension(60*teamArray.length() + 10, 170));
+            FaderBank.add(NameTeamALabelMusic);
+            NameTeamALabelMusic.setBounds(10,10,100,30);
+            FaderBank.add(NameTeamBLabelMusic);
+            NameTeamBLabelMusic.setBounds(10,50,100,30);
+            FaderBank.add(new JLabel("Main", SwingConstants.CENTER){{setBounds(10,90,100,30);}});
+            FaderBank.add(goalSongTeamAFader);
+            goalSongTeamAFader.setBounds(120,10,550,30);
+            FaderBank.add(goalSongTeamBFader);
+            goalSongTeamBFader.setBounds(120,50,550,30);
+            FaderBank.add(goalSongMainFader);
+            goalSongMainFader.setBounds(120,90,550,30);
+            FaderBank.add(songTeamAExistsPanel);
+            songTeamAExistsPanel.setBounds(680,10,30,30);
+            FaderBank.add(songTeamBExistsPanel);
+            songTeamBExistsPanel.setBounds(680,50,30,30);
 
             // Add all to the frame
             frame.add(TimerPanel);
@@ -785,12 +945,14 @@ public class App extends WebSocketClient {
             MatchListScroll.setBounds(370,10,730,530);
             MatchList.setBackground(Color.gray);
             frame.add(MusicControl);
-            MusicControl.setBounds(10,550,350,250);
+            MusicControl.setBounds(10,550,350,170);
             MusicControl.setBackground(Color.gray);
-            frame.add(FaderBankScroll);
-            FaderBankScroll.setBounds(370,550, 730,250);
+            frame.add(FaderBank);
+            FaderBank.setBounds(370,550, 730,170);
             FaderBank.setBackground(Color.gray);
             frame.setVisible(true);
+            matchDropdown.setSelectedIndex(0);
+            isUpdatingText = false;
         }catch (URISyntaxException | InterruptedException | IOException ex) {
             ex.printStackTrace();
         }
@@ -923,6 +1085,12 @@ public class App extends WebSocketClient {
             else{
                 teamArray = new JSONObject();
             }
+            if (jsonObject.has("teamVolume")) {
+                teamVolumeArray = jsonObject.getJSONObject("teamVolume");
+            }
+            else{
+                teamVolumeArray = new JSONObject();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -951,7 +1119,7 @@ public class App extends WebSocketClient {
         for(int i = 0; i < matchesArray.length(); i++){
             JSONObject readTeamFrom = matches.get(i);
             if (readTeamFrom.getString("title").contains("Gruppe")) {
-                for(int j = 0; j < (teamArray.length()/2); j++){
+                for(int j = 0; j < (teamArray.length()); j++){
                     if (teamArray.getString("team"+j).equals(readTeamFrom.getString("home")) || teamArray.getString("team"+j).equals(readTeamFrom.getString("away"))) {
                         if (teamArray.getString("team"+j).equals(readTeamFrom.getString("home"))) {
                             gotTeamA = true;
@@ -962,20 +1130,54 @@ public class App extends WebSocketClient {
                     }
                 } 
                 if (gotTeamA == false) {
-                    teamArray.put("team"+ teamArray.length()/2,readTeamFrom.getString("home"));
-                    teamArray.put("teamVolume" + teamArray.length()/2, 0);
-                    System.out.println("added Team A");
+                    teamArray.put("team"+ teamArray.length(),readTeamFrom.getString("home"));
+                    teamVolumeArray.put("teamVolume" + teamVolumeArray.length(), 0);
                 }
                 if (gotTeamB == false) {
-                    teamArray.put("team"+teamArray.length()/2,readTeamFrom.getString("away"));
-                    teamArray.put("teamVolume" + teamArray.length()/2, 0);
-                    System.out.println("added Team B");
+                    teamArray.put("team"+teamArray.length(),readTeamFrom.getString("away"));
+                    teamVolumeArray.put("teamVolume" + teamVolumeArray.length(), 0);
                 }
                 gotTeamA = false;
                 gotTeamB = false;
             }
         }
-        System.out.println(teamArray);
+    }
+    public static List<String> teamArrayToString(){
+        List<String> teamStringArray = new ArrayList<>();
+        for(int i = 0; i < teamArray.length(); i++){
+            teamStringArray.add(teamArray.getString("team" + i));
+        }
+        return teamStringArray;
+    }
+    public static void showSuggestions(JPopupMenu teamSuggestions, JTextField parent, List<String> teamStringArray){
+        teamSuggestions.removeAll();
+
+        String input = parent.getText();
+        if (input.isEmpty()) {
+            teamSuggestions.setVisible(false);
+            return;
+        }
+        List<String> matches = teamStringArray.stream().filter(s -> s.contains(input)).collect(Collectors.toList());
+
+        if (matches.isEmpty()) {
+            teamSuggestions.setVisible(false);
+            return;
+        }
+
+    for (String match : matches) {
+        JMenuItem item = new JMenuItem(match);
+        item.addActionListener(e -> {
+            isUpdatingText = true;
+            parent.setText(match);
+            isUpdatingText = false;
+            teamSuggestions.setVisible(false);
+        });
+        teamSuggestions.add(item);
+    }
+
+        teamSuggestions.show(parent, 0, parent.getHeight());
+        parent.requestFocus();
+
     }
     public static void saveGameResult(){
         JSONObject currentMatch = matches.get(currentMatchIndex-1);
@@ -988,9 +1190,52 @@ public class App extends WebSocketClient {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("matches", matchesArray);
             jsonObject.put("teams", teamArray);
+            jsonObject.put("teamVolume", teamVolumeArray);
             os.write(jsonObject.toString(4).getBytes());
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+    private static void addDbLabels(JSlider slider, int maxVal) {
+    Hashtable<Integer, JLabel> labels = new Hashtable<>();
+    
+    // Standard font for labels (optional, makes it look cleaner)
+    Font f = new Font("SansSerif", Font.PLAIN, 10);
+
+    // 1. Mute Position (0)
+    JLabel mute = new JLabel("-∞");
+    mute.setFont(f);
+    labels.put(0, mute);
+
+    // 2. Half Power Position (50) -> -6dB
+    // Only add if the slider is large enough to show it
+    if (maxVal >= 50) {
+        JLabel minus6 = new JLabel("-6dB");
+        minus6.setFont(f);
+        labels.put(50, minus6);
+    }
+
+    // 3. Unity Gain Position (100) -> 0dB
+    if (maxVal >= 100) {
+        JLabel unity = new JLabel("0dB");
+        unity.setFont(f); // Bold this one as it is the "standard"
+        labels.put(100, unity);
+    }
+
+    // 4. Boost Position (150) -> +3.5dB
+    if (maxVal >= 150) {
+        JLabel boost = new JLabel("+3.5dB");
+        boost.setFont(f);
+        labels.put(150, boost);
+    }
+
+    // Apply the labels to the slider
+    slider.setLabelTable(labels);
+    slider.setPaintLabels(true);
+    
+    // Add visual ticks for clarity
+    slider.setPaintTicks(true);
+    slider.setMajorTickSpacing(50); // Ticks at 0, 50, 100, 150
+    slider.setMinorTickSpacing(10); // Smaller ticks in between
+}
 }
