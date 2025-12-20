@@ -288,13 +288,13 @@ public class App extends WebSocketClient {
         send(setCurrentScene.toString());
         System.out.println(setCurrentScene.toString());
     }
-    public void playGoalSong(String scoreGainedTeam, JSlider volumeSlider, JSlider mainSlider) {
-        if (songPlaying) return; 
+    public void playGoalSong(String scoreGainedTeam, JSlider volumeSlider, JSlider mainSlider, JProgressBar vuMeter) {
+        if (songPlaying) return;
 
         new Thread(() -> {
             songPlaying = true;
             SourceDataLine line = null;
-            ChangeListener volumeUpdater = null; // We define this here to remove it later
+            ChangeListener volumeUpdater = null;
 
             try {
                 FileInputStream fis = new FileInputStream("Torsongs/" + scoreGainedTeam + ".mp3");
@@ -313,49 +313,52 @@ public class App extends WebSocketClient {
 
                         if (line.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
                             FloatControl volumeControl = (FloatControl) line.getControl(FloatControl.Type.MASTER_GAIN);
-
                             volumeUpdater = e -> {
-                                // 1. Get linear factors (e.g., 50% = 0.5, 150% = 1.5)
                                 float songVol = volumeSlider.getValue() / 100f;
-                                float mainVol = mainSlider.getValue() / 100f; 
-
+                                float mainVol = mainSlider.getValue() / 100f;
                                 float combinedFactor = songVol * mainVol;
-
                                 float dB = (float) (20.0 * Math.log10(combinedFactor > 0.0001 ? combinedFactor : 0.0001));
-
-                                // 4. Clamp to hardware limits to prevent crashing
-                                // (Most systems max out at +6dB, which fits your 150% / +3.5dB need)
+                                
                                 if (dB < volumeControl.getMinimum()) dB = volumeControl.getMinimum();
                                 if (dB > volumeControl.getMaximum()) dB = volumeControl.getMaximum();
-
                                 volumeControl.setValue(dB);
                             };
-
-                            // Apply volume immediately
                             volumeUpdater.stateChanged(null);
-
-                            // Attach the SAME listener to BOTH sliders
                             volumeSlider.addChangeListener(volumeUpdater);
                             mainSlider.addChangeListener(volumeUpdater);
                         }
                     }
 
-                    byte[] buffer = new byte[output.getBufferLength() * 2];
                     short[] samples = output.getBuffer();
-                    for (int i = 0; i < samples.length; i++) {
-                        buffer[i * 2] = (byte) (samples[i] & 0xff);
-                        buffer[i * 2 + 1] = (byte) ((samples[i] >> 8) & 0xff);
+                    byte[] buffer = new byte[output.getBufferLength() * 2];
+                    float maxAmplitude = 0;
+
+                    // SINGLE LOOP: Convert to bytes AND calculate VU level at the same time
+                    for (int i = 0; i < output.getBufferLength(); i++) {
+                        short sample = samples[i];
+                        
+                        // 1. Bytes conversion
+                        buffer[i * 2] = (byte) (sample & 0xff);
+                        buffer[i * 2 + 1] = (byte) ((sample >> 8) & 0xff);
+
+                        // 2. VU Meter calculation
+                        float absValue = Math.abs(sample) / 32768f;
+                        if (absValue > maxAmplitude) maxAmplitude = absValue;
                     }
 
+                    // Update UI
+                    float finalLevel = maxAmplitude;
+                    SwingUtilities.invokeLater(() -> vuMeter.setValue((int) (finalLevel * 100)));
+
+                    // SINGLE WRITE: This sends the data to the speakers once
                     line.write(buffer, 0, buffer.length);
+                    
                     bitstream.closeFrame();
                 }
-
                 fis.close();
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
-                // CRITICAL: Remove listener from BOTH sliders
                 if (volumeUpdater != null) {
                     volumeSlider.removeChangeListener(volumeUpdater);
                     mainSlider.removeChangeListener(volumeUpdater);
@@ -365,6 +368,8 @@ public class App extends WebSocketClient {
                     line.close();
                 }
                 songPlaying = false;
+                // Clear the meter when song ends
+                SwingUtilities.invokeLater(() -> vuMeter.setValue(0));
             }
         }).start();
     }
@@ -555,9 +560,7 @@ public class App extends WebSocketClient {
             JSlider goalSongTeamAFader = new JSlider(JSlider.HORIZONTAL, 0, 100, 100);
             JSlider goalSongTeamBFader = new JSlider(JSlider.HORIZONTAL, 0, 100, 100);
             JSlider goalSongMainFader = new JSlider(JSlider.HORIZONTAL, 0, 150, 100);
-            addDbLabels(goalSongTeamAFader, 100);
-            addDbLabels(goalSongTeamBFader, 100);
-            addDbLabels(goalSongMainFader, 150);
+            JProgressBar vuMeter = new JProgressBar(0, 100);
 
 
             increaseScoreAbutton.addActionListener(new ActionListener() {
@@ -569,7 +572,7 @@ public class App extends WebSocketClient {
                     } else {
                         System.out.println("WebSocket is not authenticated yet.");
                     }
-                    client.playGoalSong(NameTeamA, goalSongTeamAFader, goalSongMainFader);
+                    client.playGoalSong(NameTeamA, goalSongTeamAFader, goalSongMainFader, vuMeter);
                 }
             });
             decreaseScoreAbutton.addActionListener(new ActionListener() {
@@ -593,7 +596,7 @@ public class App extends WebSocketClient {
 
                     if (client.isAuthenticated) {
                         client.setTextInputContent("ScoreTeamB", String.valueOf(ScoreTeamB));
-                        client.playGoalSong(NameTeamB, goalSongTeamBFader, goalSongMainFader);
+                        client.playGoalSong(NameTeamB, goalSongTeamBFader, goalSongMainFader, vuMeter);
                     } else {
                         System.out.println("WebSocket is not authenticated yet.");
                     }
@@ -930,6 +933,12 @@ public class App extends WebSocketClient {
             songTeamAExistsPanel.setBounds(680,10,30,30);
             FaderBank.add(songTeamBExistsPanel);
             songTeamBExistsPanel.setBounds(680,50,30,30);
+            FaderBank.add(vuMeter);
+            vuMeter.setBounds(10,130,710, 30);
+            vuMeter.setStringPainted(false);
+            vuMeter.setForeground(java.awt.Color.GREEN);
+            vuMeter.setBackground(java.awt.Color.BLACK);
+            vuMeter.setBorder(BorderFactory.createLineBorder(java.awt.Color.DARK_GRAY));
 
             // Add all to the frame
             frame.add(TimerPanel);
@@ -1196,46 +1205,4 @@ public class App extends WebSocketClient {
             e.printStackTrace();
         }
     }
-    private static void addDbLabels(JSlider slider, int maxVal) {
-    Hashtable<Integer, JLabel> labels = new Hashtable<>();
-    
-    // Standard font for labels (optional, makes it look cleaner)
-    Font f = new Font("SansSerif", Font.PLAIN, 10);
-
-    // 1. Mute Position (0)
-    JLabel mute = new JLabel("-∞");
-    mute.setFont(f);
-    labels.put(0, mute);
-
-    // 2. Half Power Position (50) -> -6dB
-    // Only add if the slider is large enough to show it
-    if (maxVal >= 50) {
-        JLabel minus6 = new JLabel("-6dB");
-        minus6.setFont(f);
-        labels.put(50, minus6);
-    }
-
-    // 3. Unity Gain Position (100) -> 0dB
-    if (maxVal >= 100) {
-        JLabel unity = new JLabel("0dB");
-        unity.setFont(f); // Bold this one as it is the "standard"
-        labels.put(100, unity);
-    }
-
-    // 4. Boost Position (150) -> +3.5dB
-    if (maxVal >= 150) {
-        JLabel boost = new JLabel("+3.5dB");
-        boost.setFont(f);
-        labels.put(150, boost);
-    }
-
-    // Apply the labels to the slider
-    slider.setLabelTable(labels);
-    slider.setPaintLabels(true);
-    
-    // Add visual ticks for clarity
-    slider.setPaintTicks(true);
-    slider.setMajorTickSpacing(50); // Ticks at 0, 50, 100, 150
-    slider.setMinorTickSpacing(10); // Smaller ticks in between
-}
 }
