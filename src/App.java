@@ -8,7 +8,6 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Base64;
-import java.util.Hashtable;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.stream.Collectors;
@@ -20,6 +19,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import java.awt.*;
+import java.awt.RenderingHints.Key;
 import java.util.List;
 import java.util.ArrayList;
 import org.json.JSONTokener;
@@ -291,6 +291,15 @@ public class App extends WebSocketClient {
     public void playGoalSong(String scoreGainedTeam, JSlider volumeSlider, JSlider mainSlider, JProgressBar vuMeter) {
         if (songPlaying) return;
 
+        try {
+            Robot robot = new Robot();
+            robot.keyPress(KeyEvent.VK_PAUSE);
+            robot.delay(200);
+            robot.keyRelease(KeyEvent.VK_PAUSE);
+        } catch (AWTException e) {
+            e.printStackTrace();
+        }
+
         new Thread(() -> {
             songPlaying = true;
             SourceDataLine line = null;
@@ -337,18 +346,22 @@ public class App extends WebSocketClient {
                     for (int i = 0; i < output.getBufferLength(); i++) {
                         short sample = samples[i];
                         
-                        // 1. Bytes conversion
                         buffer[i * 2] = (byte) (sample & 0xff);
                         buffer[i * 2 + 1] = (byte) ((sample >> 8) & 0xff);
 
-                        // 2. VU Meter calculation
                         float absValue = Math.abs(sample) / 32768f;
                         if (absValue > maxAmplitude) maxAmplitude = absValue;
                     }
 
                     // Update UI
                     float finalLevel = maxAmplitude;
-                    SwingUtilities.invokeLater(() -> vuMeter.setValue((int) (finalLevel * 100)));
+                    SwingUtilities.invokeLater(() -> {
+                        int value = (int) (finalLevel * 100);
+                        vuMeter.setValue(value);
+                        if (value < 75) vuMeter.setForeground(Color.GREEN);
+                        else if (value < 90) vuMeter.setForeground(Color.YELLOW);
+                        else vuMeter.setForeground(Color.RED);
+                    });
 
                     // SINGLE WRITE: This sends the data to the speakers once
                     line.write(buffer, 0, buffer.length);
@@ -368,7 +381,6 @@ public class App extends WebSocketClient {
                     line.close();
                 }
                 songPlaying = false;
-                // Clear the meter when song ends
                 SwingUtilities.invokeLater(() -> vuMeter.setValue(0));
             }
         }).start();
@@ -384,7 +396,7 @@ public class App extends WebSocketClient {
             File goalSongTeamB = new File("Torsongs/" + NameTeamB + ".mp3");
             if(goalSongTeamA.exists()){
                 goalSongTeamAExists.setBackground(Color.green);
-            }
+            }   
             else{
                 goalSongTeamAExists.setBackground(Color.white);
             }
@@ -906,6 +918,7 @@ public class App extends WebSocketClient {
                 teamBLabelArray[i].setBounds(390, y,150,30);
                 MatchList.add(activeButton[i]);
                 activeButton[i].setBounds(550,y,150,30);
+                activeButton[i].setBackground(Color.white);
                 loadMatchesToList(matchIndexLabel,matchTitelLabel,teamALabelArray,scoreTeamALabelArray,scoreTeamBLabelArray,teamBLabelArray,i);
             }
 
@@ -925,10 +938,19 @@ public class App extends WebSocketClient {
             FaderBank.add(new JLabel("Main", SwingConstants.CENTER){{setBounds(10,90,100,30);}});
             FaderBank.add(goalSongTeamAFader);
             goalSongTeamAFader.setBounds(120,10,550,30);
+            goalSongTeamAFader.setBackground(Color.gray);
+            goalSongTeamAFader.setMinorTickSpacing(20);
+            goalSongTeamAFader.setPaintTicks(true);
             FaderBank.add(goalSongTeamBFader);
             goalSongTeamBFader.setBounds(120,50,550,30);
+            goalSongTeamBFader.setBackground(Color.gray);
+            goalSongTeamBFader.setMinorTickSpacing(20);
+            goalSongTeamBFader.setPaintTicks(true);
             FaderBank.add(goalSongMainFader);
             goalSongMainFader.setBounds(120,90,550,30);
+            goalSongMainFader.setBackground(Color.gray);
+            goalSongMainFader.setMinorTickSpacing(20);
+            goalSongMainFader.setPaintTicks(true);
             FaderBank.add(songTeamAExistsPanel);
             songTeamAExistsPanel.setBounds(680,10,30,30);
             FaderBank.add(songTeamBExistsPanel);
@@ -936,7 +958,7 @@ public class App extends WebSocketClient {
             FaderBank.add(vuMeter);
             vuMeter.setBounds(10,130,710, 30);
             vuMeter.setStringPainted(false);
-            vuMeter.setForeground(java.awt.Color.GREEN);
+            //vuMeter.setForeground(java.awt.Color.GREEN);
             vuMeter.setBackground(java.awt.Color.BLACK);
             vuMeter.setBorder(BorderFactory.createLineBorder(java.awt.Color.DARK_GRAY));
 
@@ -1140,11 +1162,11 @@ public class App extends WebSocketClient {
                 } 
                 if (gotTeamA == false) {
                     teamArray.put("team"+ teamArray.length(),readTeamFrom.getString("home"));
-                    teamVolumeArray.put("teamVolume" + teamVolumeArray.length(), 0);
+                    teamVolumeArray.put("teamVolume" + teamVolumeArray.length(), 100);
                 }
                 if (gotTeamB == false) {
                     teamArray.put("team"+teamArray.length(),readTeamFrom.getString("away"));
-                    teamVolumeArray.put("teamVolume" + teamVolumeArray.length(), 0);
+                    teamVolumeArray.put("teamVolume" + teamVolumeArray.length(), 100);
                 }
                 gotTeamA = false;
                 gotTeamB = false;
@@ -1186,6 +1208,9 @@ public class App extends WebSocketClient {
 
         teamSuggestions.show(parent, 0, parent.getHeight());
         parent.requestFocus();
+
+    }
+    public static void getAverageVolume(){
 
     }
     public static void saveGameResult(){
