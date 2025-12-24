@@ -42,7 +42,7 @@
             "scoreHome": 0,
             "away": "GIG- Gewinnen ist geil",
             "id": "1",
-            "scoreAway": 1,
+            "scoreAway": 0,
             "title": "Gruppe D",
             "home": "G-67"
         },
@@ -71,10 +71,10 @@
             "home": "Goblin Gang"
         },
         {
-            "scoreHome": 0,
+            "scoreHome": 1,
             "away": "Osimhänner",
             "id": "5",
-            "scoreAway": 0,
+            "scoreAway": 1,
             "title": "Gruppe B",
             "home": "Die wilden Wickel"
         },
@@ -114,7 +114,7 @@
             "scoreHome": 0,
             "away": "SB Export",
             "id": "10",
-            "scoreAway": 0,
+            "scoreAway": 1,
             "title": "Gruppe B",
             "home": "Osimhänner"
         },

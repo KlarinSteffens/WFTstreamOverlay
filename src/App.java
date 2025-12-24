@@ -484,7 +484,12 @@ public class App extends WebSocketClient {
             // Load matches from JSON
             client.loadJSONFile();
             client.loadTeamArray();
-
+            try {
+                UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+                    | UnsupportedLookAndFeelException e) {
+                e.printStackTrace();
+            }
             JFrame frame = new JFrame("WFT_OBS_Manager");
             frame.setSize(1130, 780);
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -552,11 +557,11 @@ public class App extends WebSocketClient {
                                 saveGameResult();
                                 activeButton[currentMatchIndex-1].setBackground(Color.white);
                                 activeButton[currentMatchIndex-1].setText("activate");
-                            }
-                            try {
-                                loadMatchesToList(matchIndexLabel, matchTitelLabel, teamALabelArray, scoreTeamALabelArray, scoreTeamBLabelArray , teamBLabelArray, currentMatchIndex-1);
-                            } catch (IOException e1) {
-                                e1.printStackTrace();
+                                try {
+                                    loadMatchesToList(matchIndexLabel, matchTitelLabel, teamALabelArray, scoreTeamALabelArray, scoreTeamBLabelArray , teamBLabelArray, currentMatchIndex-1);
+                                } catch (IOException e1) {
+                                    e1.printStackTrace();
+                                }
                             }
                             wasMakeActiveButton = true;
                             currentMatchIndex = ButtonIndex;
@@ -847,8 +852,6 @@ public class App extends WebSocketClient {
             TimerPanel.add(timerLabel);
             TimerPanel.add(new JLabel("Timer") {{setBounds(10, 90, 80, 30);}});
             timerLabel.setBounds(125, 90, 80, 30); 
-            /*TimerPanel.add(sub15);
-            sub15.setBounds(10,130,30,30);*/
             TimerPanel.add(sub5);
             sub5.setBounds(95,90,50,30);
             TimerPanel.add(startButton);
@@ -859,8 +862,6 @@ public class App extends WebSocketClient {
             resetButton.setBounds(210, 130, 70, 30);
             TimerPanel.add(add5);
             add5.setBounds(185,90,50,30);
-            /*TimerPanel.add(add15);
-            add15.setBounds(380,130,30,30);*/
 
             JPanel ScorePanel = new JPanel();
             ScorePanel.setLayout(null);
