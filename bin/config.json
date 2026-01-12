@@ -1,6 +1,6 @@
 {
-    "ipaddress": "172.16.1.6",
-    "password": "CAqwxGSBAOUe30q6",
-    "port": "4455",
+    "ipaddress": "localhost",
+    "password": "JrXIqKD6qIeV5PNL",
+    "port": "4444",
     "matchespath": "matchesTest.json"
 }

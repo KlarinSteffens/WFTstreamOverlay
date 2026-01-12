@@ -71,10 +71,10 @@
             "home": "Goblin Gang"
         },
         {
-            "scoreHome": 1,
+            "scoreHome": 0,
             "away": "Osimhänner",
             "id": "5",
-            "scoreAway": 1,
+            "scoreAway": 0,
             "title": "Gruppe B",
             "home": "Die wilden Wickel"
         },

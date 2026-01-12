@@ -19,6 +19,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import java.awt.*;
+import java.awt.RenderingHints.Key;
 import java.util.List;
 import java.util.ArrayList;
 import org.json.JSONTokener;
@@ -37,7 +38,7 @@ public class App extends WebSocketClient {
     //websocketConnection
     //private String password;
     private String challenge;
-    private String salt;
+    private String salt; 
     public int requestID = 0;
     private boolean isAuthenticated = false;
     //config
@@ -293,7 +294,7 @@ public class App extends WebSocketClient {
         try {
             Robot robot = new Robot();
             robot.keyPress(KeyEvent.VK_PAUSE);
-            robot.delay(200);
+            robot.delay(50);
             robot.keyRelease(KeyEvent.VK_PAUSE);
         } catch (AWTException e) {
             e.printStackTrace();
@@ -483,11 +484,7 @@ public class App extends WebSocketClient {
             // Load matches from JSON
             client.loadJSONFile();
             client.loadTeamArray();
-            try {
-                UIManager.setLookAndFeel(new WFTstyleLaF());
-            } catch (UnsupportedLookAndFeelException e) {
-                e.printStackTrace();
-            }
+
             JFrame frame = new JFrame("WFT_OBS_Manager");
             frame.setSize(1130, 780);
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -555,11 +552,11 @@ public class App extends WebSocketClient {
                                 saveGameResult();
                                 activeButton[currentMatchIndex-1].setBackground(Color.white);
                                 activeButton[currentMatchIndex-1].setText("activate");
-                                try {
-                                    loadMatchesToList(matchIndexLabel, matchTitelLabel, teamALabelArray, scoreTeamALabelArray, scoreTeamBLabelArray , teamBLabelArray, currentMatchIndex-1);
-                                } catch (IOException e1) {
-                                    e1.printStackTrace();
-                                }
+                            }
+                            try {
+                                loadMatchesToList(matchIndexLabel, matchTitelLabel, teamALabelArray, scoreTeamALabelArray, scoreTeamBLabelArray , teamBLabelArray, currentMatchIndex-1);
+                            } catch (IOException e1) {
+                                e1.printStackTrace();
                             }
                             wasMakeActiveButton = true;
                             currentMatchIndex = ButtonIndex;
@@ -850,6 +847,8 @@ public class App extends WebSocketClient {
             TimerPanel.add(timerLabel);
             TimerPanel.add(new JLabel("Timer") {{setBounds(10, 90, 80, 30);}});
             timerLabel.setBounds(125, 90, 80, 30); 
+            /*TimerPanel.add(sub15);
+            sub15.setBounds(10,130,30,30);*/
             TimerPanel.add(sub5);
             sub5.setBounds(95,90,50,30);
             TimerPanel.add(startButton);
@@ -860,6 +859,8 @@ public class App extends WebSocketClient {
             resetButton.setBounds(210, 130, 70, 30);
             TimerPanel.add(add5);
             add5.setBounds(185,90,50,30);
+            /*TimerPanel.add(add15);
+            add15.setBounds(380,130,30,30);*/
 
             JPanel ScorePanel = new JPanel();
             ScorePanel.setLayout(null);
@@ -917,7 +918,7 @@ public class App extends WebSocketClient {
                 teamBLabelArray[i].setBounds(390, y,150,30);
                 MatchList.add(activeButton[i]);
                 activeButton[i].setBounds(550,y,150,30);
-                //activeButton[i].setBackground(Color.white);
+                activeButton[i].setBackground(Color.white);
                 loadMatchesToList(matchIndexLabel,matchTitelLabel,teamALabelArray,scoreTeamALabelArray,scoreTeamBLabelArray,teamBLabelArray,i);
             }
 
@@ -1143,6 +1144,7 @@ public class App extends WebSocketClient {
         }
     }
     public void loadTeamArray(){
+        System.out.println(teamArray.length());
         Boolean gotTeamA = false;
         Boolean gotTeamB = false;
         for(int i = 0; i < matchesArray.length(); i++){
