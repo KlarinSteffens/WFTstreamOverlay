@@ -1,5 +1,5 @@
 {
-    "ipaddress": "localhost",
+    "ipaddress": "172.16.1.6",
     "password": "CAqwxGSBAOUe30q6",
     "port": "4455",
     "matchespath": "matchesTest.json"

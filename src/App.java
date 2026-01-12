@@ -19,7 +19,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import java.awt.*;
-import java.awt.RenderingHints.Key;
 import java.util.List;
 import java.util.ArrayList;
 import org.json.JSONTokener;
@@ -38,7 +37,7 @@ public class App extends WebSocketClient {
     //websocketConnection
     //private String password;
     private String challenge;
-    private String salt; 
+    private String salt;
     public int requestID = 0;
     private boolean isAuthenticated = false;
     //config
@@ -485,9 +484,8 @@ public class App extends WebSocketClient {
             client.loadJSONFile();
             client.loadTeamArray();
             try {
-                UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-                    | UnsupportedLookAndFeelException e) {
+                UIManager.setLookAndFeel(new WFTstyleLaF());
+            } catch (UnsupportedLookAndFeelException e) {
                 e.printStackTrace();
             }
             JFrame frame = new JFrame("WFT_OBS_Manager");
@@ -919,7 +917,7 @@ public class App extends WebSocketClient {
                 teamBLabelArray[i].setBounds(390, y,150,30);
                 MatchList.add(activeButton[i]);
                 activeButton[i].setBounds(550,y,150,30);
-                activeButton[i].setBackground(Color.white);
+                //activeButton[i].setBackground(Color.white);
                 loadMatchesToList(matchIndexLabel,matchTitelLabel,teamALabelArray,scoreTeamALabelArray,scoreTeamBLabelArray,teamBLabelArray,i);
             }
 
@@ -1145,7 +1143,6 @@ public class App extends WebSocketClient {
         }
     }
     public void loadTeamArray(){
-        System.out.println(teamArray.length());
         Boolean gotTeamA = false;
         Boolean gotTeamB = false;
         for(int i = 0; i < matchesArray.length(); i++){
